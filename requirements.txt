@@ -1,0 +1,10 @@
+Flask
+MarkupSafe
+mistune
+Pillow
+pytest
+pytz
+google-api-python-client 
+google-auth-httplib2
+google-auth-oauthlib
+

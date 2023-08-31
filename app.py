@@ -7,6 +7,9 @@ from shotglass2.tools.views import tools
 from shotglass2.users.admin import Admin
 from shotglass2.users.models import User
 
+from temp_center.models import init_db as temp_center_init, Device, Sensor, Reading
+from temp_center.views import device, sensor, reading
+
 # Create app
 import logging 
 try:
@@ -55,18 +58,9 @@ def initalize_all_tables(db=None):
     shotglass.initalize_user_tables(db)
     
     ### setup any other tables you need here....
-    
-    
-def initalize_all_tables(db=None):
-    """Place code here as needed to initialze all the tables for this site"""
-    if not db:
-        db = get_db()
-    
-    shotglass.initalize_user_tables(db)
+    temp_center_init(db)
 
-    ### setup any other tables you need here....
-    # Starter(db).init_table()
-
+    
 def get_db(filespec=None):
     """Return a connection to the database.
 
@@ -127,19 +121,30 @@ def _before():
         {'title':'Home','url':url_for('www.home')},
         {'title':'About','url':url_for('www.about')},
         {'title':'Contact Us','url':url_for('www.contact')},
-        {'title':'Docs','url':url_for('www.docs')},
         ]
         
     # g.admin items are added to the navigation menu by default
     g.admin = Admin(g.db) # This is where user access rules are stored
     
     # # Add a module to the menu
-    # g.admin.register(Starter,
-    #         url_for('starter.display'),
-    #         display_name='Starter',
-    #         top_level=True,
-    #         minimum_rank_required=500,
-    #     )
+    g.admin.register(Device,
+            url_for('device.display'),
+            display_name='Devices',
+            top_level=True,
+            minimum_rank_required=500,
+        )
+    g.admin.register(Sensor,
+            url_for('sensor.display'),
+            display_name='Sensors',
+            top_level=True,
+            minimum_rank_required=500,
+        )
+    g.admin.register(Reading,
+            url_for('reading.display'),
+            display_name='Readings',
+            top_level=True,
+            minimum_rank_required=500,
+        )
     
     # This one will set up the view log item
     g.admin.register(User,
@@ -183,8 +188,10 @@ shotglass.register_www(app)
 app.register_blueprint(tools.mod)
 
 # # add more modules...
-# from starter_module.views import starter
-# app.register_blueprint(starter.mod)
+app.register_blueprint(device.mod)
+app.register_blueprint(sensor.mod)
+app.register_blueprint(reading.mod)
+
 
 if __name__ == '__main__':
     

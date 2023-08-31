@@ -1,0 +1,10 @@
+{% extends "form_layout.html" %}
+
+{% from "_form_helpers.html" import input_field %}
+
+{% block fieldset %}
+<fieldset>
+    {{ input_field(rec.id,"id",type="hidden",default="0")}}
+    <p>{{ input_field(rec.name,"name",req=True,)}}</p>
+ </fieldset>
+{% endblock %}

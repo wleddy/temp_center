@@ -8,7 +8,7 @@ from shotglass2.users.admin import Admin
 from shotglass2.users.models import User
 
 from temp_center.models import init_db as temp_center_init, Device, Sensor, Reading
-from temp_center.views import device, sensor, reading
+from temp_center.views import device, sensor, reading, api
 
 # Create app
 import logging 
@@ -128,21 +128,29 @@ def _before():
     
     # # Add a module to the menu
     g.admin.register(Device,
-            url_for('device.display'),
-            display_name='Devices',
-            top_level=True,
-            minimum_rank_required=500,
-        )
+                     None,
+                     display_name='Temp Center',
+                     top_level=False,
+                     header_row=True,
+                     minimum_rank_required=500,
+                     )
+
+    g.admin.register(Device,
+                    url_for('device.display'),
+                    display_name='Devices',
+                    top_level=False,
+                    minimum_rank_required=500,
+                    )
     g.admin.register(Sensor,
-            url_for('sensor.display'),
-            display_name='Sensors',
-            top_level=True,
-            minimum_rank_required=500,
+                url_for('sensor.display'),
+                display_name='Sensors',
+                top_level=False,
+                minimum_rank_required=500,
         )
     g.admin.register(Reading,
             url_for('reading.display'),
             display_name='Readings',
-            top_level=True,
+            top_level=False,
             minimum_rank_required=500,
         )
     
@@ -191,6 +199,7 @@ app.register_blueprint(tools.mod)
 app.register_blueprint(device.mod)
 app.register_blueprint(sensor.mod)
 app.register_blueprint(reading.mod)
+app.register_blueprint(api.mod)
 
 
 if __name__ == '__main__':

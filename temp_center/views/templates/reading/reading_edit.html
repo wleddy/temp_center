@@ -5,13 +5,13 @@
 {% block fieldset %}
 <fieldset>
     {{ input_field(rec.id,"id",type="hidden",default="0")}}
-    <p>{{ input_field(rec.temp,"temp",)}}</p>
+    <p>{{ input_field(rec.temperature,"Temperature",)}}</p>
     <p>{{ input_field(rec.scale,"scale",)}}</p>
-    <p>{{ input_field(rec.time,"time",)}}</p>
+    <p>{{ input_field(rec.reading_time,"Reading Time",)}}</p>
     <p>
-    {{ select_field(rec.sensor_id,"sensor_id",label='Sensor')}}
+    {{ select_field(rec.sensor_id,"Sensor ID")}}
         {% for option in sensors %}
-            <option value="{{option{id}}}" {% if option.id == rec.sensor_id %}selected{% endif %}>{{option.name}}</option>
+            <option value="{{option.id}}" {% if option.id == rec.sensor_id %}selected{% endif %}>{{option.name}}</option>
         {% endfor %}
     </select>
     </p>

@@ -64,16 +64,16 @@ class Reading(SqliteTable):
     def __init__(self,db_connection):
         super().__init__(db_connection)
         self.table_name = 'reading'
-        self.order_by_col = 'time'
+        self.order_by_col = 'reading_time'
         self.defaults = {}
         
     def create_table(self):
         """Define and create a table"""
         
         sql = """
-            'temp' NUMBER,
+            'temperature' NUMBER,
             'scale' TEXT,
-            'time' DATETIME,
+            'reading_time' DATETIME,
             'sensor_id' INTEGER,
             FOREIGN KEY (sensor_id) REFERENCES sensor(id) ON DELETE CASCADE """
         super().create_table(sql)

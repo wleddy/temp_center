@@ -6,7 +6,7 @@ from temp_center.models import Device
 
 PRIMARY_TABLE = Device
 
-mod = Blueprint('device',__name__, template_folder='templates/', url_prefix='/temp_center/device')
+mod = Blueprint('device',__name__, template_folder='templates/', url_prefix='/device')
 
 
 def setExits():

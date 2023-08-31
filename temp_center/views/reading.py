@@ -2,11 +2,11 @@ from flask import request, session, g, redirect, url_for, \
      render_template, flash, Blueprint
 from shotglass2.takeabeltof.utils import printException, cleanRecordID
 from shotglass2.users.admin import login_required, table_access_required
-from temp_center.models import Reading
+from temp_center.models import Reading, Sensor
 
 PRIMARY_TABLE = Reading
 
-mod = Blueprint('reading',__name__, template_folder='templates/', url_prefix='/temp_center/reading')
+mod = Blueprint('reading',__name__, template_folder='templates/', url_prefix='/reading')
 
 
 def setExits():
@@ -31,7 +31,10 @@ def display(path=None):
     # optionally specify the list fields
     view.list_fields = [
             {'name':'id','label':'ID','class':'w3-hide-small','search':True},
-            {'name':'name'},
+            {'name':'reading_time'},
+            {'name':'temperature'},
+            {'name':'scale'},
+            {'name':'sensor_id'},
         ]
     
     return view.dispatch_request()
@@ -48,7 +51,8 @@ def edit(rec_id=None):
 
     reading = PRIMARY_TABLE(g.db)
     rec = None
-    
+    sensors = Sensor(g.db).select()
+
     if rec_id == None:
         rec_id = request.form.get('id',request.args.get('id',-1))
         
@@ -76,7 +80,7 @@ def edit(rec_id=None):
             return redirect(g.listURL)
 
     # display form
-    return render_template('reading/reading_edit.html', rec=rec)
+    return render_template('reading/reading_edit.html', rec=rec,sensors=sensors)
     
     
 def validForm(rec):

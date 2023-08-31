@@ -6,5 +6,12 @@
 <fieldset>
     {{ input_field(rec.id,"id",type="hidden",default="0")}}
     <p>{{ input_field(rec.name,"name",req=True,)}}</p>
+    <p>
+         {{ select_field("device_id","Device ID")}}
+           {% for option in devices %}
+            <option value="{{option.id}}" {% if option.id==rec.device_id %}selected{% endif %}>{{option.name}}</option>
+            {% endfor %}
+        </select>
+    </p>
  </fieldset>
 {% endblock %}

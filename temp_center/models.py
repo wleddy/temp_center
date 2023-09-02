@@ -72,6 +72,7 @@ class Reading(SqliteTable):
         
         sql = """
             'temperature' NUMBER,
+            'raw_temperature' NUMBER,
             'scale' TEXT,
             'reading_time' DATETIME,
             'sensor_id' INTEGER,

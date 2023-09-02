@@ -208,7 +208,7 @@ if __name__ == '__main__':
         # create the default database if needed
         initalize_all_tables()
         
-    app.run(host='localhost', port=5000)
+    app.run(host='10.0.1.4', port=5000)
     #app.run()
     
     

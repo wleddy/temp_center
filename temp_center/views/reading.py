@@ -28,13 +28,22 @@ def display(path=None):
     setExits()
     
     view = TableView(PRIMARY_TABLE,g.db)
+    view.sql = """select reading.id, reading_time, 
+    printf("%.1f",reading.temperature) || " " || reading.scale as temperature, 
+    printf("%.1f",reading.raw_temperature) || " " || reading.scale as raw_temp,
+    sensor.name as sensor_name, device.name as device_name
+    from reading
+    join sensor on reading.sensor_id = sensor.id
+    join device on sensor.device_id = device.id
+    """
     # optionally specify the list fields
     view.list_fields = [
             {'name':'id','label':'ID','class':'w3-hide-small','search':True},
             {'name':'reading_time'},
-            {'name':'temperature'},
-            {'name':'scale'},
-            {'name':'sensor_id'},
+            {'name': 'temperature'},
+            {'name': 'raw_temp', 'class': 'w3-hide-small'},
+            {'name':'sensor_name'},
+            {'name': 'device_name', 'class': 'w3-hide-small'}
         ]
     
     return view.dispatch_request()

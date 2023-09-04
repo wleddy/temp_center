@@ -10,7 +10,7 @@ from temp_center.models import Device, Sensor, Reading
 from datetime import datetime
 
 mod = Blueprint('api', __name__, template_folder='templates/',
-                url_prefix='/')
+                url_prefix='/api')
 
 
 @mod.route('/<path:path>', methods=['GET'])
@@ -34,6 +34,9 @@ def add_reading(path:str=None):
     rec = {}
 
     # import pdb;pdb.set_trace()
+
+    if not path:
+        return 'No path'
 
     path = path.strip()
     path_list = path.split("/")

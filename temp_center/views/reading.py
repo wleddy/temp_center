@@ -38,12 +38,12 @@ def display(path=None):
     """
     # optionally specify the list fields
     view.list_fields = [
-            {'name':'id','label':'ID','class':'w3-hide-small','search':True},
-            {'name':'reading_time'},
-            {'name': 'temperature'},
-            {'name': 'raw_temp', 'class': 'w3-hide-small'},
-            {'name':'sensor_name'},
-            {'name': 'device_name', 'class': 'w3-hide-small'}
+        {'name': 'id', 'label': 'ID', 'class': 'w3-hide-small', 'search': True},
+        {'name': 'reading_time', 'search': True, 'type': "datetime"},
+        {'name': 'temperature'},
+        {'name': 'raw_temp', 'class': 'w3-hide-small'},
+        {'name': 'sensor_name', 'search': True},
+        {'name': 'device_name', 'class': 'w3-hide-small'},
         ]
     
     return view.dispatch_request()
@@ -60,7 +60,13 @@ def edit(rec_id=None):
 
     reading = PRIMARY_TABLE(g.db)
     rec = None
-    sensors = Sensor(g.db).select()
+    sql = """
+        select sensor.id, sensor.name || " @ " || device.name as name
+        from sensor
+        join device on device.id = sensor.device_id
+        order by device.name, sensor.name
+    """
+    sensors = Sensor(g.db).query(sql)
 
     if rec_id == None:
         rec_id = request.form.get('id',request.args.get('id',-1))

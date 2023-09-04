@@ -18,6 +18,7 @@ def setExits():
 
 from shotglass2.takeabeltof.views import TableView
 
+
 # this handles table list and record delete
 @mod.route('/<path:path>',methods=['GET','POST',])
 @mod.route('/<path:path>/',methods=['GET','POST',])

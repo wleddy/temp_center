@@ -8,7 +8,7 @@ from shotglass2.users.admin import Admin
 from shotglass2.users.models import User
 
 from temp_center.models import init_db as temp_center_init, Device, Sensor, Reading
-from temp_center.views import device, sensor, reading, api
+from temp_center.views import home, device, sensor, reading, api
 
 # Create app
 import logging 
@@ -118,9 +118,9 @@ def _before():
     #  with keys of 'title' & 'url' used to construct
     #  the non-table based items in the main menu
     g.menu_items = [
-        {'title':'Home','url':url_for('www.home')},
-        {'title':'About','url':url_for('www.about')},
-        {'title':'Contact Us','url':url_for('www.contact')},
+        {'title':'Home','url':url_for('home.home')},
+        # {'title':'About','url':url_for('www.about')},
+        # {'title':'Contact Us','url':url_for('www.contact')},
         ]
         
     # g.admin items are added to the navigation menu by default
@@ -191,11 +191,12 @@ app.add_url_rule('/static/<path:filename>','static',shotglass.static)
 shotglass.register_users(app)
 
 # setup www.routes...
-shotglass.register_www(app)
+# shotglass.register_www(app)
 
 app.register_blueprint(tools.mod)
 
 # # add more modules...
+app.register_blueprint(home.mod)
 app.register_blueprint(device.mod)
 app.register_blueprint(sensor.mod)
 app.register_blueprint(reading.mod)

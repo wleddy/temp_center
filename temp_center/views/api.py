@@ -7,7 +7,7 @@ from shotglass2.takeabeltof.date_utils import local_datetime_now
 from shotglass2.users.admin import login_required, table_access_required
 from temp_center.models import Device, Sensor, Reading
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 mod = Blueprint('api', __name__, template_folder='templates/',
                 url_prefix='/api')
@@ -33,7 +33,7 @@ def add_reading(path:str=None):
     error_list = []
     rec = {}
 
-    # import pdb;pdb.set_trace()
+    import pdb;pdb.set_trace()
 
     if not path:
         return 'No path'
@@ -73,7 +73,13 @@ def add_reading(path:str=None):
         # Record the reading
         new_rec = Reading(g.db).new()
         new_rec.update(rec,True)
-        new_rec.commit()
+
+        # remove a bunch of old readings
+        end_date = (local_datetime_now() - timedelta(days=4)).date()
+        sql = "delete from reading where date(reading_time) < '{}'".format(end_date)
+        test = Reading(g.db).query(sql)
+
+        Reading(g.db).commit()
 
         result = "OK"
     else:

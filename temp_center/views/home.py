@@ -24,7 +24,7 @@ def home():
     join sensor on sensor.id = reading.sensor_id
     join device on device.id = sensor.device_id
     where device.id = {device_id} and sensor.id = {sensor_id}
-    order by reading.id DESC
+    order by reading.reading_time DESC
     limit 1
     """
 
@@ -32,11 +32,9 @@ def home():
     sensors = []
     # import pdb;pdb.set_trace()
     devices = Device(g.db).select(order_by="name")
-    print("Devices: ", devices)
     if devices:
         for device in devices:
             sensors = Sensor(g.db).select(where="device_id = {}".format(device.id),order_by="name DESC")
-            print("Sensors:",sensors)
             if sensors:
                 for sensor in sensors:
                     data.append(Reading(g.db).query(sql.format(device_id = device.id, sensor_id = sensor.id))[0])

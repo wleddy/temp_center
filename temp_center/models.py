@@ -64,7 +64,7 @@ class Reading(SqliteTable):
     def __init__(self,db_connection):
         super().__init__(db_connection)
         self.table_name = 'reading'
-        self.order_by_col = 'reading_time'
+        self.order_by_col = 'reading_time DESC'
         self.defaults = {}
         
     def create_table(self):

@@ -39,10 +39,10 @@ def display(path=None):
     # optionally specify the list fields
     view.list_fields = [
         {'name': 'id', 'label': 'ID', 'class': 'w3-hide-small', 'search': True},
-        {'name': 'reading_time', 'search': True, 'type': "datetime"},
+        {'name': 'reading_time', 'search': "date"},
         {'name': 'temperature'},
         {'name': 'raw_temp', 'class': 'w3-hide-small'},
-        {'name': 'sensor_name', 'search': True},
+        {'name': 'sensor_name',},
         {'name': 'device_name', 'class': 'w3-hide-small'},
         ]
     

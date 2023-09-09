@@ -45,6 +45,7 @@ def display(path=None):
         {'name': 'sensor_name',},
         {'name': 'device_name', 'class': 'w3-hide-small'},
         ]
+    view.export_fields = view.list_fields
     
     return view.dispatch_request()
     

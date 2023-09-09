@@ -75,8 +75,8 @@ def add_reading(path:str=None):
         new_rec.update(rec,True)
 
         # remove a bunch of old readings
-        end_date = (local_datetime_now() - timedelta(days=1)).date()
-        sql = "delete from reading where date(reading_time) < '{}'".format(end_date)
+        end_date = (local_datetime_now() - timedelta(days=1))
+        sql = "delete from reading where date(reading_time,'localtime') < date('{}','localtime')".format(end_date)
         test = Reading(g.db).query(sql)
 
         Reading(g.db).commit()

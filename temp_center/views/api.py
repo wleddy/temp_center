@@ -1,21 +1,23 @@
 """API to receive requests for access to the Temperature display devices"""
 
-from flask import request, g, redirect, url_for, \
+from flask import g, redirect, url_for, \
     render_template, flash, Blueprint
+
 from shotglass2.takeabeltof.utils import cleanRecordID
 from shotglass2.takeabeltof.date_utils import local_datetime_now
 from shotglass2.users.admin import login_required, table_access_required
 from temp_center.models import Device, Sensor, Reading
 
 from datetime import datetime, timedelta
+import os
 
 mod = Blueprint('api', __name__, template_folder='templates/',
                 url_prefix='/api')
 
 
-@mod.route('/<path:path>', methods=['GET'])
-@mod.route('/<path:path>/', methods=['GET'])
-@mod.route('/', methods=['GET'])
+@mod.route('/add_reading/<path:path>', methods=['GET'])
+@mod.route('/add_reading/<path:path>/', methods=['GET'])
+@mod.route('/add_reading', methods=['GET'])
 def add_reading(path:str=None):
     """Recode a reading from a sensor sent here
     
@@ -42,12 +44,12 @@ def add_reading(path:str=None):
     path_list = path.split("/")
     print(path_list)
 
-    if len(path_list) == 5:
+    if len(path_list) == 4:
         # has all elements
-        rec['sensor_id'] = cleanRecordID(path_list[1].strip())  # path_list[0] is the method name
-        rec['temperature'] = path_list[2].strip()
-        rec['raw_temperature'] = path_list[3].strip()
-        rec['scale'] = path_list[4].strip().upper()
+        rec['sensor_id'] = cleanRecordID(path_list[0].strip())  # path_list[0] is the method name
+        rec['temperature'] = path_list[1].strip()
+        rec['raw_temperature'] = path_list[2].strip()
+        rec['scale'] = path_list[3].strip().upper()
         rec['reading_time'] = local_datetime_now()
     else:
         #Not a valid request, stop right here
@@ -86,3 +88,4 @@ def add_reading(path:str=None):
         result = ','.join(error_list)
 
     return result
+

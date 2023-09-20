@@ -29,6 +29,7 @@ def display(path=None):
     
     view = TableView(PRIMARY_TABLE,g.db)
     view.sql = """select reading.id, date(reading_time,'localtime') as date, 
+    time(reading_time, 'localtime') as reading_time,
     printf("%.1f",reading.temperature) || " " || reading.scale as temperature, 
     printf("%.1f",reading.raw_temperature) || " " || reading.scale as raw_temp,
     sensor.name as sensor_name, device.name as device_name
@@ -39,7 +40,8 @@ def display(path=None):
     # optionally specify the list fields
     view.list_fields = [
         {'name': 'id', 'label': 'ID', 'class': 'w3-hide-small', 'search': True},
-        {'name': 'date', 'search': "date"},
+        {'name': 'date', 'search': 'date', 'class':'w3-hide-small'},
+        {'name': 'reading_time','label':'Time', 'search':False},
         {'name': 'temperature'},
         {'name': 'raw_temp', 'class': 'w3-hide-small'},
         {'name': 'sensor_name',},

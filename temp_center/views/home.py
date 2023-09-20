@@ -1,6 +1,5 @@
 from flask import request, session, g, redirect, url_for, \
      render_template, flash, Blueprint
-from shotglass2.takeabeltof.utils import printException, cleanRecordID
 from temp_center.models import Sensor, Device, Reading
 
 mod = Blueprint('home',__name__, template_folder='templates/', url_prefix='')
@@ -19,7 +18,8 @@ def home():
     setExits()
 
     sql = """
-    select reading.id, round(temperature,1) as temperature, scale, device.name as device_name, sensor.name as sensor_name
+    select reading.id, round(temperature,1) as temperature, scale, 
+        device.name as device_name, sensor.name as sensor_name, reading_time
     from reading
     join sensor on sensor.id = reading.sensor_id
     join device on device.id = sensor.device_id

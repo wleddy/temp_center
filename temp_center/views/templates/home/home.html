@@ -6,9 +6,31 @@
     th,
     td {
         border: 0px solid black;
+        border-bottom: 2px solid red;
         border-collapse: collapse;
-        padding:6pt;
+        padding:0pt 12pt;
     }
+    .big, .scale {
+        font-weight:bold;
+        color:aquamarine;
+        text-align: center;
+        font-size: 18pt;
+
+    }
+    .big {font-size:36pt;}
+    .scale {
+        vertical-align: top;
+        position: relative;
+        top: 6pt;
+    }
+    .name {
+        font-weight:normal;
+        color:white;
+        vertical-align: top;
+        position: relative;
+        top: 6pt;
+    }
+
 </style>
 
 {% set row_name = [""] %}
@@ -20,17 +42,26 @@
             {% set _ = row_name.pop() %}{% set _ = row_name.append(row.device_name) %}
             <tr >
             <td colspan="2" style="background-color:white;text-align: center;"><h2 >{{row.device_name}}</h2></td>
+            </tr>
+            <tr>
+                <td  colspan="2" >
+                    <h3 class="big">
+                        {{row.reading_time | local_time_string }}
+                    </h3>
+                </td>
+            </tr>
+
         {% endif %}
-        <tr>
-            <td style="vertical-align: top;">
+         <tr>
+            <td  style="vertical-align: top;">
                 <h3>
-                    <span style="color:white;position: relative;top:6pt">{{row.sensor_name}}</span>: 
+                    <span class="name" >{{row.sensor_name}}</span>: 
                 </h3>
             </td>
             <td>
-                <h3 style="text-align: right;font-weight:bold;color:aquamarine">
-                    <span style="font-size:200%;">{{row.temperature}}</span>
-                    <span style="font-size: 100%;vertical-align: top;position: relative;top:6pt">{{row.scale}}</span>
+                <h3 class="big">
+                    {{row.temperature}}
+                    <span class="scale">{{row.scale}}</span>
                 </h3>
             </td>
         </tr>

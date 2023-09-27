@@ -19,7 +19,8 @@ def home():
 
     sql = """
     select reading.id, round(temperature,1) as temperature, scale, 
-        device.name as device_name, sensor.name as sensor_name, reading_time
+        device.name as device_name, sensor.name as sensor_name, 
+        (select max(reading_time) from reading) as reading_time
     from reading
     join sensor on sensor.id = reading.sensor_id
     join device on device.id = sensor.device_id

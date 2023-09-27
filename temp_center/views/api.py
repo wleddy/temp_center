@@ -35,7 +35,7 @@ def add_reading(path:str=None):
     error_list = []
     rec = {}
 
-    import pdb;pdb.set_trace()
+    # import pdb;pdb.set_trace()
 
     if not path:
         return 'No path'

@@ -30,7 +30,7 @@ def home():
 
     data = []
     sensors = []
-    import pdb;pdb.set_trace()
+    # import pdb;pdb.set_trace()
     devices = Device(g.db).select(order_by="name")
     if devices:
         for device in devices:

@@ -30,14 +30,16 @@ def home():
 
     data = []
     sensors = []
-    # import pdb;pdb.set_trace()
+    import pdb;pdb.set_trace()
     devices = Device(g.db).select(order_by="name")
     if devices:
         for device in devices:
             sensors = Sensor(g.db).select(where="device_id = {}".format(device.id),order_by="name DESC")
             if sensors:
                 for sensor in sensors:
-                    data.append(Reading(g.db).query(sql.format(device_id = device.id, sensor_id = sensor.id))[0])
+                    readings = Reading(g.db).query(sql.format(device_id = device.id, sensor_id = sensor.id))
+                    if readings:
+                        data.append(readings[0])
 
     print(data)
 

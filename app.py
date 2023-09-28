@@ -10,6 +10,7 @@ from shotglass2.users.models import User
 from temp_center.models import init_db as temp_center_init, Device, Sensor, Reading
 from temp_center.views import home, device, sensor, reading, api
 
+# add a pointless comment
 # Create app
 import logging 
 try:

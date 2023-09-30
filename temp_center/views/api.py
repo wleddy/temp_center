@@ -1,6 +1,6 @@
 """API to receive requests for access to the Temperature display devices"""
 
-from flask import g, redirect, url_for, \
+from flask import g, redirect, url_for, send_file, abort, \
     render_template, flash, Blueprint
 
 from shotglass2.takeabeltof.utils import cleanRecordID
@@ -89,3 +89,22 @@ def add_reading(path:str=None):
 
     return result
 
+@mod.route('/get_file/<path:path>', methods=['GET'])
+def get_file(path):
+    """Return a file from the app directory of
+    the weather_station repo cloned to this site
+    """
+    # import pdb;pdb.set_trace()
+
+    if not path or not isinstance(path,str):
+        return abort(404)
+    
+    path = os.path.join('weather_station/app/',path)
+
+    if not os.path.isfile(path):
+        abort(404)
+    
+    try:
+        return send_file(path, as_attachment=True, max_age=0,)
+    except:
+        return abort(404)

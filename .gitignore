@@ -20,3 +20,6 @@ shotglass/
 
 # local storage location
 resource/
+
+# The weather_station repo is here just to make OTA updates more reliable?
+weather_station/

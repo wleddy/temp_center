@@ -93,7 +93,8 @@ def inject_site_config():
 @app.before_request
 def _before():
     # Force all connections to be secure
-    if app.config['REQUIRE_SSL'] and not request.is_secure :
+    if '/api/' not in request.url and \
+        (app.config['REQUIRE_SSL'] and not request.is_secure):
         return redirect(request.url.replace("http://", "https://"))
 
     #ensure that nothing is served from the instance directory

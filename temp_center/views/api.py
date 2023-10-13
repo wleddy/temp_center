@@ -1,8 +1,9 @@
 """API to receive requests for access to the Temperature display devices"""
 
 from flask import g, redirect, url_for, send_file, abort, \
-    render_template, flash, Blueprint
+    render_template, Blueprint, request
 
+from shotglass2.shotglass import make_path
 from shotglass2.takeabeltof.utils import cleanRecordID
 from shotglass2.takeabeltof.date_utils import local_datetime_now
 from shotglass2.users.admin import login_required, table_access_required
@@ -10,6 +11,7 @@ from temp_center.models import Device, Sensor, Reading
 
 from datetime import datetime, timedelta
 import os
+import json
 
 mod = Blueprint('api', __name__, template_folder='templates/',
                 url_prefix='/api')
@@ -108,3 +110,65 @@ def get_file(path):
         return send_file(path, as_attachment=True, max_age=0,)
     except:
         return abort(404)
+
+
+@mod.route('/log', methods=['GET','POST'])
+@mod.route('/log/', methods=['GET','POST'])
+def log():
+    """Record or get the remote log from the weather station"""
+    
+    # import pdb;pdb.set_trace()
+    
+    path = 'instance/remote_logs/'
+    data = None
+    
+    def make_file(filename):
+        # create the file if needed
+        if not os.path.exists(filename):
+            if make_path(filename):
+                with open(filename,'w') as f:
+                    pass
+                
+                
+    def get_log_name(filename,device_name,number):
+        return os.path.join(os.path.dirname(filename),f"{device_name}{str(number)}.log")
+
+        
+    if request.data:
+        data = json.loads(request.data.decode())
+        
+        
+    if data is None:
+        # send the log file
+        return 'no data'
+    
+    if data:
+        # append to the data file
+        if isinstance(data,dict) and 'device_name' in data and 'log' in data:
+            filename = os.path.join(path,data['device_name']+'.log')
+            # create the file if needed
+            make_file(filename)
+                    
+            with open(filename,'a') as f:
+                f.write(data['log'])
+            
+            # roll the log?
+            size = os.stat(filename)[6]
+            max_count = 4
+            if size > 10000:
+                # import pdb;pdb.set_trace()
+                for i in range(max_count,0,-1):
+                    log_name = get_log_name(filename,data['device_name'],i)
+                    if os.path.exists(log_name):
+                        if i == 4:
+                            os.remove(log_name)
+                        else:
+                            new_log = log_name.replace(f"{data['device_name']}{str(i)}",f"{data['device_name']}{str(i+1)}")
+                            if not os.path.exists(new_log):
+                                os.rename(log_name,new_log)
+
+                # current name.log becomes name_1.log
+                log_name = get_log_name(filename,data['device_name'],1)
+                os.rename(filename,log_name)
+        
+    return 'Ok'

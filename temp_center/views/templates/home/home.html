@@ -23,13 +23,16 @@
         position: relative;
         top: 6pt;
     }
-    .name {
+    .name, .hi, .lo {
         font-weight:normal;
         color:white;
         vertical-align: top;
         position: relative;
-        top: 6pt;
+        top: -6pt;
     }
+    .lo, .hi {font-size:18pt;}
+    .lo {color: blue;}
+    .hi {color:red;}
 
 </style>
 
@@ -56,6 +59,11 @@
             <td  style="vertical-align: top;">
                 <h3>
                     <span class="name" >{{row.sensor_name}}</span>: 
+                </h3>
+                <h3>
+                    <span class='lo'>{{row.min_temp | int | default('?',True)}}</span>
+                    &nbsp;                          
+                    <span class='hi'>{{row.max_temp | int | default('?',True)}}</span>
                 </h3>
             </td>
             <td>

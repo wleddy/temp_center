@@ -9,6 +9,7 @@
         border-bottom: 2px solid red;
         border-collapse: collapse;
         padding:0pt 12pt;
+        background-color: black;
     }
     .big, .scale {
         font-weight:bold;
@@ -23,6 +24,10 @@
         position: relative;
         top: 6pt;
     }
+    .device_name {
+        background-color:white;
+        text-align: center;
+    }
     .name, .hi, .lo {
         font-weight:normal;
         color:white;
@@ -34,20 +39,21 @@
         margin:0;
         line-height:.8;
     }
-    .lo {color:deepskyblue;}
-    .hi {color:red;}
+    .lo {color:deepskyblue;padding-right:6pt;}
+    .hi {color:red;padding-left:6pt;top:-2px;}
 
 </style>
 
 {% set row_name = [""] %}
 {% if data %}
     <div style="margin: auto;width:fit-content;" >
-    <table style="background-color: black;">
+    <table>
     {% for row in data %}
         {% if row_name[0] != row.device_name %}
             {% set _ = row_name.pop() %}{% set _ = row_name.append(row.device_name) %}
             <tr >
-            <td colspan="2" style="background-color:white;text-align: center;"><h2 >{{row.device_name}}</h2></td>
+            <td colspan="2" style="" class="device_name">
+                <h2 >{{row.device_name}}</h2></td>
             </tr>
             <tr>
                 <td  colspan="2" >
@@ -59,13 +65,10 @@
 
         {% endif %}
          <tr>
-            <td  style="vertical-align: top;">
-                <h3>
-                    <span class="name" >{{row.sensor_name}}</span>: 
-                </h3>
+            <td>
+                <h3 class="name">{{row.sensor_name}}</h3>
                 <h3>
                     <span class='lo'>{{row.min_temp | int | default('?',True)}}</span>
-                    &nbsp;                          
                     <span class='hi'>{{row.max_temp | int | default('?',True)}}</span>
                 </h3>
             </td>

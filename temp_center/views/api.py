@@ -3,7 +3,7 @@
 from flask import g, redirect, url_for, send_file, abort, \
     render_template, Blueprint, request
 
-from shotglass2.shotglass import make_path
+from shotglass2.shotglass import make_path, ShotLog
 from shotglass2.takeabeltof.utils import cleanRecordID
 from shotglass2.takeabeltof.date_utils import local_datetime_now
 from shotglass2.users.admin import login_required, table_access_required
@@ -12,6 +12,7 @@ from temp_center.models import Device, Sensor, Reading
 from datetime import datetime, timedelta
 import os
 import json
+import hashlib
 
 mod = Blueprint('api', __name__, template_folder='templates/',
                 url_prefix='/api')
@@ -91,21 +92,56 @@ def add_reading(path:str=None):
 
     return result
 
+
+@mod.route('/get_file', methods=['POST'])
+@mod.route('/get_file/', methods=['POST'])
+def get_file():
+    """Weather station device will post the filename and the
+    hash of it's local file.
+    If the hash of the file here does not match, 
+    send our copy of the file.
+    """
+    
+    if request.data:
+        data = json.loads(request.data.decode())
+    else:
+        return abort(404)
+    
+    if 'filename' in data and 'local_hash' in data:
+        path = os.path.join('weather_station/app/',data['filename'])
+
+        if not os.path.isfile(path):
+            return abort(404)
+
+        with open(path,'r') as f:
+            my_hash = str(hashlib.sha1(f.read().encode()).digest())
+        
+        print('my_hash', my_hash)
+
+        if my_hash != data['local_hash']:
+            try:
+                return send_file(path, as_attachment=True, max_age=0,)
+            except:
+                return abort(404)
+        else:
+            return ''
+            
+    return abort(404)
+    
 @mod.route('/get_file/<path:path>', methods=['GET'])
-def get_file(path):
+def old_get_file(path):
     """Return a file from the app directory of
     the weather_station repo cloned to this site
     """
     # import pdb;pdb.set_trace()
-
     if not path or not isinstance(path,str):
         return abort(404)
-    
+
     path = os.path.join('weather_station/app/',path)
 
     if not os.path.isfile(path):
         abort(404)
-    
+
     try:
         return send_file(path, as_attachment=True, max_age=0,)
     except:
@@ -114,26 +150,51 @@ def get_file(path):
 
 @mod.route('/log', methods=['GET','POST'])
 @mod.route('/log/', methods=['GET','POST'])
-def log():
+@mod.route('/log/<device_id>', methods=['GET','POST'])
+@mod.route('/log/<device_id>/', methods=['GET','POST'])
+def log(device_id=None):
     """Record or get the remote log from the weather station"""
-    
-    # import pdb;pdb.set_trace()
-    
-    path = 'instance/remote_logs/'
-    data = None
-    
+
     def make_file(filename):
         # create the file if needed
         if not os.path.exists(filename):
             if make_path(filename):
                 with open(filename,'w') as f:
-                    pass
-                
-                
-    def get_log_name(filename,device_name,number):
-        return os.path.join(os.path.dirname(filename),f"{device_name}{str(number)}.log")
-
+                    f.close()
         
+    def get_filename(path,device_name):
+        return os.path.join(path,device_name + '.log').replace(' ','_').replace('"','_').replace("'",'_')
+        
+    def get_device_name(device_id):
+        d = Device(g.db).get(cleanRecordID(device_id))
+        if d:
+            return d.name
+        return ''
+        
+        
+    # import pdb;pdb.set_trace()
+    path = 'instance/remote_logs/'
+    data = None
+    g.title = f'Remote Log for Unknown device'
+    
+    # filename= os.path.join(path,'remote.log')
+    
+    if request.method.upper() == 'GET':
+        #return the log
+        log = None
+        device_name = get_device_name(device_id)
+        if device_name:
+            filename= get_filename(path,device_name)
+            
+            g.title = f'Remote Log for {device.name}'
+            # device_name = 'remote'
+            if os.path.exists(filename):
+                log = ShotLog(filename).get_text()
+            else:
+                log = None
+        
+        return render_template('home/log.html',log=log)
+    
     if request.data:
         data = json.loads(request.data.decode())
         
@@ -144,31 +205,34 @@ def log():
     
     if data:
         # append to the data file
-        if isinstance(data,dict) and 'device_name' in data and 'log' in data:
-            filename = os.path.join(path,data['device_name']+'.log')
+        if isinstance(data,dict) and 'device_id' in data and 'log' in data:
             # create the file if needed
-            make_file(filename)
+            device_name = get_device_name(data['device_id'])
+            filename = get_filename(path,device_name)
+            if device_name and filename:
+                make_file(filename)
                     
-            with open(filename,'a') as f:
-                f.write(data['log'])
+                with open(filename,'a') as f:
+                    f.write(data['log'])
             
-            # roll the log?
-            size = os.stat(filename)[6]
-            max_count = 4
-            if size > 10000:
-                # import pdb;pdb.set_trace()
-                for i in range(max_count,0,-1):
-                    log_name = get_log_name(filename,data['device_name'],i)
-                    if os.path.exists(log_name):
-                        if i == 4:
-                            os.remove(log_name)
-                        else:
-                            new_log = log_name.replace(f"{data['device_name']}{str(i)}",f"{data['device_name']}{str(i+1)}")
-                            if not os.path.exists(new_log):
-                                os.rename(log_name,new_log)
-
-                # current name.log becomes name_1.log
-                log_name = get_log_name(filename,data['device_name'],1)
-                os.rename(filename,log_name)
+                # truncate the log?
+                size = os.stat(filename)[6]
+                if size > 20000:
+                    tmp_name = os.path.join(path,'tmp.log')
+                    # import pdb;pdb.set_trace()
+                    with open(filename,'r') as f:
+                        with open(tmp_name,'w') as w:
+                            # find a return char
+                            f.seek(int(size/2))
+                            char = ''
+                            while char != '\n':
+                                char = f.read(1)
+                            out = True
+                            while out:
+                                out = f.readline()
+                                w.write(out)
+                                                
+                    os.remove(filename)
+                    os.rename(tmp_name,filename)
         
     return 'Ok'

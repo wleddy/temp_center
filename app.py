@@ -137,11 +137,18 @@ def _before():
                      )
 
     g.admin.register(Device,
-                    url_for('device.display'),
-                    display_name='Devices',
-                    top_level=False,
-                    minimum_rank_required=500,
-                    )
+                     url_for('api.log')+'/1',
+                     display_name='Remote Log',
+                     top_level=False,
+                     minimum_rank_required=500,
+                     )
+                     
+    g.admin.register(Device,
+                     url_for('device.display'),
+                     display_name='Devices',
+                     top_level=False,
+                     minimum_rank_required=500,
+                     )
     g.admin.register(Sensor,
                 url_for('sensor.display'),
                 display_name='Sensors',

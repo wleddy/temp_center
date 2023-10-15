@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+{% block title %}{{g.title}}{% endblock %}
+{% block body %}
+<div class="w3-container">
+        {% if log %}
+    <code>
+        {% for x in log %} {{ x }}<br>
+        {% endfor %}
+     </code>
+       {% else %}
+    <p>The log appears to be empty...</p>
+    {% endif %}
+</div>
+{% endblock %}

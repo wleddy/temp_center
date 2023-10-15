@@ -105,7 +105,7 @@ def get_file():
     if request.data:
         data = json.loads(request.data.decode())
     else:
-        return abort(404)
+        return ''
     
     if 'filename' in data and 'local_hash' in data:
         path = os.path.join('weather_station/app/',data['filename'])
@@ -116,17 +116,15 @@ def get_file():
         with open(path,'r') as f:
             my_hash = str(hashlib.sha1(f.read().encode()).digest())
         
-        print('my_hash', my_hash)
-
         if my_hash != data['local_hash']:
             try:
                 return send_file(path, as_attachment=True, max_age=0,)
             except:
-                return abort(404)
+                return abort(500)
         else:
             return ''
             
-    return abort(404)
+    return ''
     
 @mod.route('/get_file/<path:path>', methods=['GET'])
 def old_get_file(path):

@@ -160,8 +160,8 @@ def log(device_id=None):
                 with open(filename,'w') as f:
                     f.close()
         
-    def get_filename(path,device_name):
-        return os.path.join(path,device_name + '.log').replace(' ','_').replace('"','_').replace("'",'_')
+    def get_filename(path,device_id):
+        return os.path.join(path,str(device_id),get_device_name(device_id) + '.log').replace(' ','_').replace('"','_').replace("'",'_')
         
     def get_device_name(device_id):
         d = Device(g.db).get(cleanRecordID(device_id))
@@ -182,9 +182,9 @@ def log(device_id=None):
         log = None
         device_name = get_device_name(device_id)
         if device_name:
-            filename= get_filename(path,device_name)
+            filename= get_filename(path,device_id)
             
-            g.title = f'Remote Log for {device.name}'
+            g.title = f'Remote Log for {device_name}'
             # device_name = 'remote'
             if os.path.exists(filename):
                 log = ShotLog(filename).get_text()
@@ -206,7 +206,7 @@ def log(device_id=None):
         if isinstance(data,dict) and 'device_id' in data and 'log' in data:
             # create the file if needed
             device_name = get_device_name(data['device_id'])
-            filename = get_filename(path,device_name)
+            filename = get_filename(path,data['device_id'])
             if device_name and filename:
                 make_file(filename)
                     

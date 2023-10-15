@@ -126,6 +126,25 @@ def get_file():
             
     return ''
     
+@mod.route('/get_sensors/<int:device_id>', methods=['GET'])
+def get_sensor_data(device_id):
+    """Return a JSON string with details about the sensors"""
+
+    sensors = Sensor(g.db).select(where=f'device_id={device_id}')
+    if sensors:
+        # need to convert DataRows into normal dicts
+        l = []
+        for sensor in sensors:
+            d = {}
+            for k,v in sensor.items():
+                d.update({k:v})
+            l.append(d)
+        s = {'sensors':l}
+        return json.dumps(s)
+        
+    return json.dumps({'sensors':[]})
+        
+    
 @mod.route('/get_file/<path:path>', methods=['GET'])
 def old_get_file(path):
     """Return a file from the app directory of
@@ -234,3 +253,5 @@ def log(device_id=None):
                     os.rename(tmp_name,filename)
         
     return 'Ok'
+    
+    

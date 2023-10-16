@@ -45,7 +45,6 @@ def add_reading(path:str=None):
 
     path = path.strip()
     path_list = path.split("/")
-    print(path_list)
 
     if len(path_list) == 4:
         # has all elements
@@ -93,13 +92,13 @@ def add_reading(path:str=None):
     return result
 
 
-@mod.route('/get_file', methods=['POST'])
-@mod.route('/get_file/', methods=['POST'])
-def get_file():
+@mod.route('/check_file_version', methods=['POST'])
+@mod.route('/check_file_version/', methods=['POST'])
+def check_file_version():
     """Weather station device will post the filename and the
     hash of it's local file.
     If the hash of the file here does not match, 
-    send our copy of the file.
+    send our copy of the file else return ''
     """
     
     if request.data:
@@ -126,24 +125,41 @@ def get_file():
             
     return ''
     
-@mod.route('/get_sensors/<int:device_id>', methods=['GET'])
-def get_sensor_data(device_id):
-    """Return a JSON string with details about the sensors"""
 
-    sensors = Sensor(g.db).select(where=f'device_id={device_id}')
-    if sensors:
-        # need to convert DataRows into normal dicts
-        l = []
-        for sensor in sensors:
-            d = {}
-            for k,v in sensor.items():
-                d.update({k:v})
-            l.append(d)
-        s = {'sensors':l}
-        return json.dumps(s)
-        
-    return json.dumps({'sensors':[]})
-        
+@mod.route('/get_file', methods=['POST'])
+@mod.route('/get_file/', methods=['POST'])
+def get_file():
+    return check_file_version()
+    # """Weather station device will post the filename and the
+    # hash of it's local file.
+    # If the hash of the file here does not match,
+    # send our copy of the file.
+    # """
+    #
+    # if request.data:
+    #     data = json.loads(request.data.decode())
+    # else:
+    #     return ''
+    #
+    # if 'filename' in data and 'local_hash' in data:
+    #     path = os.path.join('weather_station/app/',data['filename'])
+    #
+    #     if not os.path.isfile(path):
+    #         return abort(404)
+    #
+    #     with open(path,'r') as f:
+    #         my_hash = str(hashlib.sha1(f.read().encode()).digest())
+    #
+    #     if my_hash != data['local_hash']:
+    #         try:
+    #             return send_file(path, as_attachment=True, max_age=0,)
+    #         except:
+    #             return abort(500)
+    #     else:
+    #         return ''
+    #
+    # return ''
+    #
     
 @mod.route('/get_file/<path:path>', methods=['GET'])
 def old_get_file(path):
@@ -164,6 +180,25 @@ def old_get_file(path):
     except:
         return abort(404)
 
+
+@mod.route('/get_sensors/<int:device_id>', methods=['GET'])
+def get_sensor_data(device_id):
+    """Return a JSON string with details about the sensors"""
+
+    sensors = Sensor(g.db).select(where=f'device_id={device_id}')
+    if sensors:
+        # need to convert DataRows into normal dicts
+        l = []
+        for sensor in sensors:
+            d = {}
+            for k,v in sensor.items():
+                d.update({k:v})
+            l.append(d)
+        s = {'sensors':l}
+        return json.dumps(s)
+        
+    return json.dumps({'sensors':[]})
+        
 
 @mod.route('/log', methods=['GET','POST'])
 @mod.route('/log/', methods=['GET','POST'])

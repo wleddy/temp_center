@@ -130,37 +130,8 @@ def check_file_version():
 @mod.route('/get_file/', methods=['POST'])
 def get_file():
     return check_file_version()
-    # """Weather station device will post the filename and the
-    # hash of it's local file.
-    # If the hash of the file here does not match,
-    # send our copy of the file.
-    # """
-    #
-    # if request.data:
-    #     data = json.loads(request.data.decode())
-    # else:
-    #     return ''
-    #
-    # if 'filename' in data and 'local_hash' in data:
-    #     path = os.path.join('weather_station/app/',data['filename'])
-    #
-    #     if not os.path.isfile(path):
-    #         return abort(404)
-    #
-    #     with open(path,'r') as f:
-    #         my_hash = str(hashlib.sha1(f.read().encode()).digest())
-    #
-    #     if my_hash != data['local_hash']:
-    #         try:
-    #             return send_file(path, as_attachment=True, max_age=0,)
-    #         except:
-    #             return abort(500)
-    #     else:
-    #         return ''
-    #
-    # return ''
-    #
     
+        
 @mod.route('/get_file/<path:path>', methods=['GET'])
 def old_get_file(path):
     """Return a file from the app directory of
@@ -269,7 +240,7 @@ def log(device_id=None):
             
                 # truncate the log?
                 size = os.stat(filename)[6]
-                if size > 20000:
+                if size > 40000:
                     tmp_name = os.path.join(path,'tmp.log')
                     # import pdb;pdb.set_trace()
                     with open(filename,'r') as f:

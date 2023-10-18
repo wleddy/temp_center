@@ -48,7 +48,5 @@ def home():
                     if readings:
                         data.append(readings[0])
 
-    print(data)
-
 
     return render_template("home/home.html",data=data)

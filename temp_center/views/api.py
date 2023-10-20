@@ -152,24 +152,23 @@ def old_get_file(path):
         return abort(404)
 
 
-@mod.route('/get_sensors/<int:device_id>', methods=['GET'])
-def get_sensor_data(device_id):
+@mod.route('/get_sensor_data/<int:device_id>', methods=['GET'])
+def get_sensor_data(device_id=None):
     """Return a JSON string with details about the sensors"""
+    
+    if cleanRecordID(device_id) < 1:
+        return abort(500)
 
     sensors = Sensor(g.db).select(where=f'device_id={device_id}')
     if sensors:
         # need to convert DataRows into normal dicts
         l = []
         for sensor in sensors:
-            d = {}
-            for k,v in sensor.items():
-                d.update({k:v})
-            l.append(d)
+            l.append(sensor.asdict())
         s = {'sensors':l}
         return json.dumps(s)
-        
-    return json.dumps({'sensors':[]})
-        
+    else:
+        return abort(404)
 
 @mod.route('/log', methods=['GET','POST'])
 @mod.route('/log/', methods=['GET','POST'])
@@ -259,5 +258,6 @@ def log(device_id=None):
                     os.rename(tmp_name,filename)
         
     return 'Ok'
+    
     
     

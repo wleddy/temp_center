@@ -6,6 +6,14 @@
 <fieldset>
     {{ input_field(rec.id,"id",type="hidden",default="0")}}
     <p>{{ input_field(rec.name,"name",req=True,)}}</p>
+    <p>{{ input_field(rec.sort_order,"sort_order",)}}</p>
+    <p>
+         {{ select_field("scale","Scale")}}
+           {% for option in ['F','C'] %}
+            <option value="{{option}}" {% if option==rec.scale %}selected{% endif %}>{{option}}</option>
+            {% endfor %}
+        </select>
+    </p>
     <p>
          {{ select_field("device_id","Device ID")}}
            {% for option in devices %}

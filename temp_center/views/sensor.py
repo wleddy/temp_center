@@ -33,6 +33,8 @@ def display(path=None):
     view.list_fields = [
             {'name':'id','label':'ID','class':'w3-hide-small','search':True},
             {'name':'name'},
+            {'name':'scale'},
+            {'name':'sort_order'},
             {'name':'device_id'}
         ]
     

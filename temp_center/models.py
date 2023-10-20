@@ -34,7 +34,7 @@ class Sensor(SqliteTable):
     def __init__(self,db_connection):
         super().__init__(db_connection)
         self.table_name = 'sensor'
-        self.order_by_col = 'lower(name)'
+        self.order_by_col = 'sort_order,lower(name)'
         self.defaults = {}
         
     def create_table(self):
@@ -54,7 +54,8 @@ class Sensor(SqliteTable):
         """
     
         column_list = [
-        # {'name':'expires','definition':'DATETIME',},
+        {'name':'sort_order','definition':'NUMBER',},
+        {'name':'scale','definition':'TEXT',},
         ]
     
         return column_list

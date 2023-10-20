@@ -19,7 +19,7 @@ def home():
     setExits()
 
     sql = """
-    select reading.id, round(temperature,1) as temperature, scale, 
+    select reading.id, round(temperature,1) as temperature, reading.scale, 
         device.name as device_name, sensor.name as sensor_name, 
         (select max(reading_time) from reading) as reading_time,
         (select round(max(temperature),0) from reading where sensor_id = {sensor_id} 

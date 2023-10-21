@@ -165,8 +165,8 @@ def get_sensor_data(device_id=None):
         l = []
         for sensor in sensors:
             l.append(sensor.asdict())
-        s = {'sensors':l}
-        return json.dumps(s)
+        
+        return json.dumps(l)
     else:
         return abort(404)
 

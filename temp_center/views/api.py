@@ -4,7 +4,7 @@ from flask import g, redirect, url_for, send_file, abort, \
     render_template, Blueprint, request
 
 from shotglass2.shotglass import make_path, ShotLog
-from shotglass2.takeabeltof.utils import cleanRecordID
+from shotglass2.takeabeltof.utils import cleanRecordID, printException
 from shotglass2.takeabeltof.date_utils import local_datetime_now
 from shotglass2.users.admin import login_required, table_access_required
 from temp_center.models import Device, Sensor, Reading
@@ -100,12 +100,13 @@ def check_file_version():
     If the hash of the file here does not match, 
     send our copy of the file else return ''
     """
+    # import pdb;pdb.set_trace()
     
     if request.data:
         data = json.loads(request.data.decode())
     else:
         return ''
-    
+            
     if 'filename' in data and 'local_hash' in data:
         path = os.path.join('weather_station/app/',data['filename'])
 
@@ -117,8 +118,22 @@ def check_file_version():
         
         if my_hash != data['local_hash']:
             try:
-                return send_file(path, as_attachment=True, max_age=0,)
-            except:
+                # import pdb;pdb.set_trace()
+                if 'Range' in request.headers:
+                    # send file in chunks
+                    #Ex: Range:'bytes=0-1024'
+                    loc = request.headers['Range'].find('=')
+                    ranges = request.headers['Range'][loc+1:].split('-')
+                    start = int(ranges[0].strip())
+                    end = int(ranges[1].strip())
+                    with open(path,'r') as f:
+                        if start != 0:
+                            f.seek(start)
+                        return f.read(end-start)
+                else:
+                    return send_file(path, as_attachment=True, max_age=0,)
+            except Exception as e:
+                printException(f'Error accessing {path} during update',err=e)
                 return abort(500)
         else:
             return ''

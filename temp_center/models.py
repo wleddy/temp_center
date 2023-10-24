@@ -1,6 +1,25 @@
 from shotglass2.takeabeltof.database import SqliteTable
 from shotglass2.takeabeltof.utils import cleanRecordID
         
+class Calibration(SqliteTable):
+    """Represents a single reading from a sensor"""
+    def __init__(self,db_connection):
+        super().__init__(db_connection)
+        self.table_name = 'calibration'
+        self.order_by_col = 'sensor_id,raw_temperature'
+        self.defaults = {}
+        
+    def create_table(self):
+        """Define and create a table"""
+        
+        sql = """
+            'raw_temperature' NUMBER,
+            'observed_temperature' NUMBER,
+            'sensor_id' INTEGER,
+            FOREIGN KEY (sensor_id) REFERENCES sensor(id) ON DELETE CASCADE """
+        super().create_table(sql)
+
+
 class Device(SqliteTable):
     """Represents the physical temperature display device"""
     def __init__(self,db_connection):
@@ -94,7 +113,13 @@ class Reading(SqliteTable):
 
 
 def init_db(db):
-    """Create a intial user record."""
-    Device(db).init_table()
-    Sensor(db).init_table()
-    Reading(db).init_table()
+    """Create Tables."""
+    l = globals().copy()
+    for n,o in l.items():
+        if type(o) == type and \
+            issubclass(o,SqliteTable) and \
+            o != SqliteTable:
+            
+            o(db).init_table()
+            
+            

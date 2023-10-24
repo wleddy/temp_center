@@ -2,7 +2,7 @@ from flask import request, session, g, redirect, url_for, \
      render_template, flash, Blueprint
 from shotglass2.takeabeltof.utils import printException, cleanRecordID
 from shotglass2.users.admin import login_required, table_access_required
-from temp_center.models import Sensor, Device
+from temp_center.models import Sensor, Device, Calibration
 
 PRIMARY_TABLE = Sensor
 
@@ -64,6 +64,8 @@ def edit(rec_id=None):
         flash("That is not a valid ID")
         return redirect(g.listURL)
         
+    cal = Calibration(g.db).select(where=f'sensor_id = {rec_id}')
+    
     if rec_id == 0:
         rec = sensor.new()
     else:
@@ -71,17 +73,59 @@ def edit(rec_id=None):
         if not rec:
             flash("Unable to locate that record")
             return redirect(g.listURL)
+        
 
     if request.form:
         sensor.update(rec,request.form)
         if validForm(rec):
             sensor.save(rec)
             g.db.commit()
+            
+            calibration = Calibration(g.db)
+            # import pdb;pdb.set_trace()
+            cal_id = request.form.getlist('cal_id')
+            cal_raw = request.form.getlist('cal_raw_temperature')
+            cal_obs = request.form.getlist('cal_observed_temperature')
+            cal_action = request.form.getlist('cal_action')
+            for i in range(len(cal_id)):
+                c_id = cleanRecordID(cal_id[i])
+                if 'delete_' + str(c_id) in cal_action:
+                    calibration.delete(c_id)
+                    continue
+                elif c_id > 0:
+                    cal = calibration.get(c_id)
+                    try:
+                        cal.raw_temperature = float(cal_raw[i])
+                        cal.observed_temperature = float(cal_obs[i])
+                        cal.save()
+                    except:
+                        continue
+                else:
+                    continue
+
+            calibration.commit()
+            
+            # Add new readings?
+            new_raw = request.form.getlist('new_raw_temperature')
+            new_obs = request.form.getlist('new_observed_temperature')
+            for i in range(len(new_raw)):
+                try:
+                    raw = float(new_raw[i])
+                    obs = float(new_obs[i])
+                except:
+                    continue
+                cal = calibration.new()
+                cal.sensor_id = rec.id
+                cal.raw_temperature = raw
+                cal.observed_temperature = obs
+                cal.save()
+                
+            calibration.commit()
 
             return redirect(g.listURL)
 
     # display form
-    return render_template('sensor/sensor_edit.html', rec=rec,devices=devices)
+    return render_template('sensor/sensor_edit.html', rec=rec,devices=devices,cal=cal)
     
     
 def validForm(rec):
@@ -89,4 +133,5 @@ def validForm(rec):
     goodForm = True
                 
     return goodForm
+    
     

@@ -21,5 +21,36 @@
             {% endfor %}
         </select>
     </p>
+    <p>{{ label_only('Calibration Table')}}</p>
+    <div id="calibration_table" style='text-align:center;border:1pt solid black;background-color:lightgray;margin:10pt auto;width:fit-content;padding:10pt;'>
+    <table>
+        <tr>
+            <th></th>
+            <th>Raw Temp.</th>
+            <th>Observed Temp.</th>
+            <th>Delete?</th>
+        </tr>
+        {% if cal %}
+        {% for c in cal %}
+        <tr>
+            <td>{{ input_field(c.id,"cal_id",type='hidden',label=None,default="0")}}</td>
+            <td>{{ input_field(c.raw_temperature,"cal_raw_temperature",label=None,default="0", extras='style="text-align:right;"')}}</td>
+            <td>
+                {{ input_field(c.observed_temperature,"cal_observed_temperature",label=None,default="0", extras='style="text-align:right;"')}}
+            </td>
+            <td>{{ checkbox_field('delete_'+c.id | string ,"cal_action",label=None)}}</td>
+        </tr>
+        {% endfor %}
+        {% endif %}
+        {% for c in range(5) %}
+        <tr>
+            <td></td>
+            <td>{{ input_field(None,"new_raw_temperature",label=None,default="?", extras='style="text-align:right;"')}}</td>
+            <td>{{ input_field(None,"new_observed_temperature",label=None,default="?", extras='style="text-align:right;"')}}</td>
+            <td>&nbsp;</td>
+        </tr>
+        {% endfor %}
+        
+    </table>
  </fieldset>
 {% endblock %}

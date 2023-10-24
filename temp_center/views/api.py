@@ -7,7 +7,7 @@ from shotglass2.shotglass import make_path, ShotLog
 from shotglass2.takeabeltof.utils import cleanRecordID, printException
 from shotglass2.takeabeltof.date_utils import local_datetime_now
 from shotglass2.users.admin import login_required, table_access_required
-from temp_center.models import Device, Sensor, Reading
+from temp_center.models import Device, Sensor, Reading, Calibration
 
 from datetime import datetime, timedelta
 import os
@@ -184,6 +184,32 @@ def get_sensor_data(device_id=None):
         return json.dumps(l)
     else:
         return abort(404)
+        
+        
+        
+@mod.route('/get_calibration_data/<int:device_id>', methods=['GET'])
+def get_calibration_data(device_id=None):
+    """Return a dict as a JSON string with sensor calibration data"""
+
+    if cleanRecordID(device_id) < 1:
+        return abort(500)
+        
+    d = {}
+    sensors = Sensor(g.db).select(where=f'device_id={device_id}')
+    if sensors:
+        for sensor in sensors:
+            l = []
+            cal = Calibration(g.db).select(where=f'sensor_id={sensor.id}')
+            if cal:
+                for c in cal:
+                    # return as a tuple
+                    t = (c.raw_temperature,c.observed_temperature)
+                    l.append(t)
+                    
+                d[str(sensor.id)] = l
+
+    return json.dumps(d)
+
 
 @mod.route('/log', methods=['GET','POST'])
 @mod.route('/log/', methods=['GET','POST'])

@@ -19,7 +19,11 @@ class Calibration(SqliteTable):
             FOREIGN KEY (sensor_id) REFERENCES sensor(id) ON DELETE CASCADE """
         super().create_table(sql)
 
-
+    def save(self,*args,**kwargs):
+        tickle_marker()
+        super().save(*args,**kwargs)
+            
+            
 class Device(SqliteTable):
     """Represents the physical temperature display device"""
     def __init__(self,db_connection):
@@ -47,6 +51,11 @@ class Device(SqliteTable):
         ]
     
         return column_list
+
+    def save(self,*args,**kwargs):
+        tickle_marker()
+        super().save(*args,**kwargs)
+
 
 class Sensor(SqliteTable):
     """Represents the sensors that are connected to a device"""
@@ -78,6 +87,11 @@ class Sensor(SqliteTable):
         ]
     
         return column_list
+
+    def save(self,*args,**kwargs):
+        tickle_marker()
+        super().save(*args,**kwargs)
+
 
 class Reading(SqliteTable):
     """Represents a single reading from a sensor"""
@@ -111,7 +125,7 @@ class Reading(SqliteTable):
     
         return column_list
 
-
+            
 def init_db(db):
     """Create Tables."""
     l = globals().copy()
@@ -123,3 +137,8 @@ def init_db(db):
             o(db).init_table()
             
             
+def tickle_marker():
+    # put a random number in a file to force update of the gizmo
+    import random
+    with open('weather_station/app/settings/tickle.txt','w') as f:
+        f.write(str(random.randint(100000,1000000000)))

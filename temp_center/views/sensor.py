@@ -58,7 +58,6 @@ def edit(rec_id=None):
         rec_id = request.form.get('id',request.args.get('id',-1))
         
     rec_id = cleanRecordID(rec_id)
-    #import pdb;pdb.set_trace
 
     if rec_id < 0:
         flash("That is not a valid ID")
@@ -66,14 +65,29 @@ def edit(rec_id=None):
         
     cal = Calibration(g.db).select(where=f'sensor_id = {rec_id}')
     
+    print('cal',cal)
+    if not cal:
+        from weather_station.app.settings.calibration_data import calibration_data
+        l = calibration_data(rec_id)
+        import pdb;pdb.set_trace
+        for i in l:
+            c = Calibration(g.db).new()
+            c.sensor_id = rec_id
+            c.raw_temperature = i[0]
+            c.observed_temperature = i[1]
+            c.save()
+            c.commit()
+            
+    # get a fresh copy  
+    cal = Calibration(g.db).select(where=f'sensor_id = {rec_id}')
+
     if rec_id == 0:
         rec = sensor.new()
     else:
         rec = sensor.get(rec_id)
         if not rec:
             flash("Unable to locate that record")
-            return redirect(g.listURL)
-        
+            return redirect(g.listURL)        
 
     if request.form:
         sensor.update(rec,request.form)

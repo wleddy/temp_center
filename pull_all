@@ -9,6 +9,10 @@ cd ../weather_station
 git pull origin master
 
 cd ../
+
+echo 'Touch me...'
+touch tmp/restart.txt
+
 echo 'All Done'
 
 

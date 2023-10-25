@@ -63,22 +63,20 @@ def edit(rec_id=None):
         flash("That is not a valid ID")
         return redirect(g.listURL)
         
-    cal = Calibration(g.db).select(where=f'sensor_id = {rec_id}')
+    # # on-time thing to load calibration from file
+    # cal = Calibration(g.db).select(where=f'sensor_id = {rec_id}')
+    # if not cal:
+    #     from weather_station.app.settings.calibration_data import calibration_data
+    #     l = calibration_data(rec_id)
+    #     import pdb;pdb.set_trace
+    #     for i in l:
+    #         c = Calibration(g.db).new()
+    #         c.sensor_id = rec_id
+    #         c.raw_temperature = i[0]
+    #         c.observed_temperature = i[1]
+    #         c.save()
+    #         c.commit()
     
-    print('cal',cal)
-    if not cal:
-        from weather_station.app.settings.calibration_data import calibration_data
-        l = calibration_data(rec_id)
-        import pdb;pdb.set_trace
-        for i in l:
-            c = Calibration(g.db).new()
-            c.sensor_id = rec_id
-            c.raw_temperature = i[0]
-            c.observed_temperature = i[1]
-            c.save()
-            c.commit()
-            
-    # get a fresh copy  
     cal = Calibration(g.db).select(where=f'sensor_id = {rec_id}')
 
     if rec_id == 0:

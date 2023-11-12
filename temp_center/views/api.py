@@ -95,6 +95,7 @@ def add_reading(path:str=None):
 @mod.route('/check_file_version', methods=['POST'])
 @mod.route('/check_file_version/', methods=['POST'])
 def check_file_version():
+    # DEPRICATED -- This method is to be removed after the next ota update
     """Weather station device will post the filename and the
     hash of it's local file.
     If the hash of the file here does not match, 
@@ -139,13 +140,77 @@ def check_file_version():
             return ''
             
     return ''
-    
+
+def get_range():
+    start = None
+    end = None
+
+    if 'Range' in request.headers:
+        # send file in chunks
+        #Ex: Range:'bytes=0-1024'
+        parts = request.headers['Range'].split('=')
+        ranges = []
+        if len(parts) == 2:
+            ranges = parts[1].split('-')
+        if len(ranges) == 2:
+            start = int(ranges[0].strip())
+            end = int(ranges[1].strip())
+
+    return start,end
+
 
 @mod.route('/get_file', methods=['POST'])
 @mod.route('/get_file/', methods=['POST'])
 def get_file():
-    return check_file_version()
+    """Weather station device will post the path of a local file.
+    return a json string with the elements:
+        hash: sha1 hash string of current file
+        file_data: the text of the file
+        file_size: size of the file
+    else if file not found return ''
+
+    The request may include a 'Range' header with the value:
+        bytes=<start>-<end>
+    and data will be limited to accordingly.
+    """
+    # import pdb;pdb.set_trace()
+    return_dict = {}
+
+    if not request.data:
+        return ''
     
+    data = json.loads(request.data.decode())
+             
+    if not 'path' in data:
+        return ''
+    
+    path = os.path.join('weather_station/app/',data['path'])
+
+    if not os.path.isfile(path):
+        return ''
+    
+    try:
+        with open(path,'r') as f:
+            return_dict['hash'] = str(hashlib.sha1(f.read().encode()).digest())
+            return_dict['file_size'] = os.path.getsize(path)
+            f.seek(0)
+            
+            # import pdb;pdb.set_trace()
+            start,end = get_range()
+            if start is not None and end is not None:
+                if start != 0:
+                    f.seek(start)
+                return_dict['file_data'] = f.read(end-start)
+            else:
+                return_dict['file_data'] = f.read()
+
+            return json.dumps(return_dict)
+        
+    except Exception as e:
+        printException(f'Error accessing {path} during update',err=e)
+        return abort(500)
+    
+
         
 @mod.route('/get_file/<path:path>', methods=['GET'])
 def old_get_file(path):

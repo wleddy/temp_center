@@ -6,56 +6,52 @@ from shotglass2.takeabeltof.jinja_filters import register_jinja_filters
 from shotglass2.tools.views import tools
 from shotglass2.users.admin import Admin
 from shotglass2.users.models import User
+from shotglass2.users.views import user
 
 from temp_center.models import init_db as temp_center_init, Device, Sensor, Reading
 from temp_center.views import home, device, sensor, reading, api
 
 # Create app
-import logging 
-try:
-    app = shotglass.create_app(
-            __name__,
-            instance_path='instance',
-            config_filename='site_settings.py',
-            static_folder=None,
-            )
-except:
-    logging.exception('')
+app = shotglass.create_app(
+        __name__,
+        instance_path='../data_store/instance',
+        config_filename='site_settings.py',
+        static_folder=None,
+        )
     
-    
-@app.before_first_request
+
 def start_app():
-    shotglass.start_logging(app)
-    get_db() # ensure that the database file exists
-    # shotglass.start_backup_thread(os.path.join(app.root_path,app.config['DATABASE_PATH']))
+    shotglass.start_logging(app) # This logs to general purpose log.log 
+    initalize_base_tables()
+    register_blueprints()
+    
     # use os.path.normpath to resolve true path to data file when using '../' shorthand
-    shotglass.start_backup_thread(os.path.normpath(os.path.join(app.root_path,shotglass.get_site_config()['DATABASE_PATH'])))
+    shotglass.start_backup_thread(
+        os.path.normpath(
+            os.path.join(
+                app.root_path,shotglass.get_site_config()['DATABASE_PATH']
+                )
+            )
+        )
 
 @app.context_processor
 def inject_site_config():
     # Add 'site_config' dict to template context
     return {'site_config':shotglass.get_site_config()}
 
-# # Depricated and removed in Flask 1.0
-# # work around some web servers that mess up root path
-# from werkzeug.contrib.fixers import CGIRootFix
-# if app.config['CGI_ROOT_FIX_APPLY'] == True:
-#     fixPath = app.config.get("CGI_ROOT_FIX_PATH","/")
-#     app.wsgi_app = CGIRootFix(app.wsgi_app, app_root=fixPath)
-
 register_jinja_filters(app)
 
 
 def init_db(db=None):
     # to support old code
-    initalize_all_tables(db)
+    initalize_base_tables(db)
 
-def initalize_all_tables(db=None):
+def initalize_base_tables(db=None):
     """Place code here as needed to initialze all the tables for this site"""
     if not db:
         db = get_db()
         
-    shotglass.initalize_user_tables(db)
+    user.initalize_tables(db)
     
     ### setup any other tables you need here....
     temp_center_init(db)
@@ -76,7 +72,7 @@ def get_db(filespec=None):
     # test the path, if not found, try to create it
     if shotglass.make_db_path(filespec):
         g.db = Database(filespec).connect()
-        initalize_all_tables(g.db)
+        initalize_base_tables(g.db)
     
         return g.db
     else:
@@ -84,10 +80,10 @@ def get_db(filespec=None):
         raise IOError("Unable to create path to () in app.get_db".format(filespec))
 
     
-@app.context_processor
-def inject_site_config():
-    # Add 'site_config' dict to template context
-    return {'site_config':shotglass.get_site_config()}
+# @app.context_processor
+# def inject_site_config():
+#     # Add 'site_config' dict to template context
+#     return {'site_config':shotglass.get_site_config()}
 
 
 @app.before_request
@@ -171,7 +167,9 @@ def _before():
         )
     
     
-    shotglass.user_setup() # g.admin now holds access rules Users, Prefs and Roles
+    # shotglass.user_setup() # g.admin now holds access rules Users, Prefs and Roles
+    # set up the User menu
+    user.create_menus()
 
 @app.teardown_request
 def _teardown(exception):
@@ -195,27 +193,46 @@ app.add_url_rule('/static/<path:filename>','static',shotglass.static)
 #app.add_url_rule('/static/<path:filename>','static',shotglass.static,subdomain="somesubdomain")
 
 
-## Setup the routes for users
-shotglass.register_users(app)
+# ## Setup the routes for users
+# #shotglass.register_users(app)
 
-# setup www.routes...
-# shotglass.register_www(app)
+# users.register_users
+# # setup www.routes...
+# # shotglass.register_www(app)
 
-app.register_blueprint(tools.mod)
+# app.register_blueprint(tools.mod)
 
-# # add more modules...
-app.register_blueprint(home.mod)
-app.register_blueprint(device.mod)
-app.register_blueprint(sensor.mod)
-app.register_blueprint(reading.mod)
-app.register_blueprint(api.mod)
+# # # add more modules...
+# app.register_blueprint(home.mod)
+# app.register_blueprint(device.mod)
+# app.register_blueprint(sensor.mod)
+# app.register_blueprint(reading.mod)
+# app.register_blueprint(api.mod)
 
+def register_blueprints():
+    """Register all your blueprints here and initialize 
+    any data tables they need.
+    """
+
+    user.register_blueprints(app)
+    # shotglass.register_www(app)
+    app.register_blueprint(tools.mod)
+
+    # # add more modules...
+    app.register_blueprint(home.mod)
+    app.register_blueprint(device.mod)
+    app.register_blueprint(sensor.mod)
+    app.register_blueprint(reading.mod)
+    app.register_blueprint(api.mod)
+
+with app.app_context():
+    start_app()
 
 if __name__ == '__main__':
     
     with app.app_context():
         # create the default database if needed
-        initalize_all_tables()
+        initalize_base_tables()
         
     app.run(host='10.0.1.15', port=5000)
     # app.run()

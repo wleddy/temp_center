@@ -1,12 +1,15 @@
 from flask import g, session, request, redirect, flash, abort, url_for, session
 import os
 from shotglass2 import shotglass
+from shotglass2.users.models import User, Pref
 from shotglass2.takeabeltof.database import Database
 from shotglass2.takeabeltof.jinja_filters import register_jinja_filters
+from shotglass2.takeabeltof.utils import cleanRecordID
 from shotglass2.tools.views import tools
 from shotglass2.users.admin import Admin
 from shotglass2.users.models import User
 from shotglass2.users.views import user
+from shotglass2.users.views.login import setUserStatus
 
 from temp_center.models import init_db as temp_center_init, Device, Sensor, Reading
 from temp_center.views import home, device, sensor, reading, api
@@ -101,16 +104,51 @@ def _before():
     # print(app.url_map)
     session.permanent = True
     
-    shotglass.get_site_config(app)
     shotglass.set_template_dirs(app)
-    
     get_db()
+
+    if 'static' in request.url:
+        return
     
+    # load the saved visit_data into session
+    shotglass._before_request(g.db)
+
     # Is the user signed in?
     g.user = None
-    if 'user' in session:
-        g.user = session['user']
+    is_admin = False
+    if 'user_id' in session and 'user' in session:
+        # Refresh the user session
+        setUserStatus(session['user'],cleanRecordID(session['user_id']))
+        is_admin = User(g.db).is_admin(session['user_id'])
+
+    # if site is down and user is not admin, stop them here.
+    # will allow an admin user to log in
+    down = Pref(g.db).get("Site Down Till",
+                        user_name=shotglass.get_site_config().get("HOST_NAME"),
+                        default='',
+                        description = 'Enter something that looks like a date or time. It will be displayed to visitors and make the site inaccessable. Delete the value to allow access again.',
+                        )
+    if down and down.value.strip():
+        if not is_admin:
+            # log the user out...
+            from shotglass2.users.views import login
+            if g.user:
+                login.logout()
+
+            # this will allow an admin to log in.
+            if request.url.endswith(url_for('login.login')):
+                return login.login()
+            
+            g.title = "Sorry"
+            return render_template('site_down.html',down_till = down.value.strip())
+        else:
+            flash("The Site is in Maintenance Mode. Changes may be lost...",category='warning')
+
+    create_menus()
+
         
+
+def create_menus():
     # g.menu_items should be a list of dicts
     #  with keys of 'title' & 'url' used to construct
     #  the non-table based items in the main menu

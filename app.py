@@ -14,7 +14,7 @@ from temp_center.views import home, device, sensor, reading, api
 # Create app
 app = shotglass.create_app(
         __name__,
-        instance_path='../data_store/instance',
+        instance_path='instance',
         config_filename='site_settings.py',
         static_folder=None,
         )
@@ -234,7 +234,7 @@ if __name__ == '__main__':
         # create the default database if needed
         initalize_base_tables()
         
-    app.run(host='10.0.1.15', port=5000)
+    app.run(host='127.0.0.1', port=5000)
     # app.run()
     
     

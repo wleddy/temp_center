@@ -26,6 +26,8 @@
     }
     .device_name {
         text-align: center;
+        color:black;
+        background-color:white;
     }
     .name, .hi, .lo {
         font-weight:normal;
@@ -41,6 +43,12 @@
     .lo {color:deepskyblue;padding-right:6pt;}
     .hi {color:red;padding-left:6pt;top:-2px;}
 
+    @media (prefers-color-scheme: dark) {
+        .device_name {
+            text-align: center;
+            color:white;
+            background-color:rgb(122, 120, 120);
+    }
 </style>
 
 {% set row_name = [""] %}

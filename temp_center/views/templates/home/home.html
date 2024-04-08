@@ -25,7 +25,6 @@
         top: 6pt;
     }
     .device_name {
-        background-color:white;
         text-align: center;
     }
     .name, .hi, .lo {
@@ -52,7 +51,7 @@
         {% if row_name[0] != row.device_name %}
             {% set _ = row_name.pop() %}{% set _ = row_name.append(row.device_name) %}
             <tr >
-            <td colspan="2" style="" class="device_name">
+            <td colspan="2" class="device_name">
                 <h2 >{{row.device_name}}</h2></td>
             </tr>
             <tr>

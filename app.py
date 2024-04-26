@@ -1,4 +1,4 @@
-from flask import g, session, request, redirect, flash, abort, url_for, session
+from flask import g, session, request, redirect, flash, abort, url_for, session, render_template
 import os
 from shotglass2 import shotglass
 from shotglass2.users.models import User, Pref
@@ -226,26 +226,6 @@ def server_error(error):
 #Register the static route
 app.add_url_rule('/static/<path:filename>','static',shotglass.static)
 
-# To use a different subdomain as asset server, use this instead
-# Direct to a specific server for static content
-#app.add_url_rule('/static/<path:filename>','static',shotglass.static,subdomain="somesubdomain")
-
-
-# ## Setup the routes for users
-# #shotglass.register_users(app)
-
-# users.register_users
-# # setup www.routes...
-# # shotglass.register_www(app)
-
-# app.register_blueprint(tools.mod)
-
-# # # add more modules...
-# app.register_blueprint(home.mod)
-# app.register_blueprint(device.mod)
-# app.register_blueprint(sensor.mod)
-# app.register_blueprint(reading.mod)
-# app.register_blueprint(api.mod)
 
 def register_blueprints():
     """Register all your blueprints here and initialize 
@@ -273,6 +253,5 @@ if __name__ == '__main__':
         initalize_base_tables()
         
     app.run(host='127.0.0.1', port=5000)
-    # app.run()
     
     

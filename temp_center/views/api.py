@@ -92,55 +92,6 @@ def add_reading(path:str=None):
     return result
 
 
-# @mod.route('/check_file_version', methods=['POST'])
-# @mod.route('/check_file_version/', methods=['POST'])
-# def check_file_version():
-#     # DEPRICATED -- This method is to be removed after the next ota update
-#     """Weather station device will post the filename and the
-#     hash of it's local file.
-#     If the hash of the file here does not match, 
-#     send our copy of the file else return ''
-#     """
-#     # import pdb;pdb.set_trace()
-    
-#     if request.data:
-#         data = json.loads(request.data.decode())
-#     else:
-#         return ''
-            
-#     if 'filename' in data and 'local_hash' in data:
-#         path = os.path.join('weather_station/app/',data['filename'])
-
-#         if not os.path.isfile(path):
-#             return abort(404)
-
-#         with open(path,'r') as f:
-#             my_hash = str(hashlib.sha1(f.read().encode()).digest())
-        
-#         if my_hash != data['local_hash']:
-#             try:
-#                 # import pdb;pdb.set_trace()
-#                 if 'Range' in request.headers:
-#                     # send file in chunks
-#                     #Ex: Range:'bytes=0-1024'
-#                     loc = request.headers['Range'].find('=')
-#                     ranges = request.headers['Range'][loc+1:].split('-')
-#                     start = int(ranges[0].strip())
-#                     end = int(ranges[1].strip())
-#                     with open(path,'r') as f:
-#                         if start != 0:
-#                             f.seek(start)
-#                         return f.read(end-start)
-#                 else:
-#                     return send_file(path, as_attachment=True, max_age=0,)
-#             except Exception as e:
-#                 printException(f'Error accessing {path} during update',err=e)
-#                 return abort(500)
-#         else:
-#             return ''
-            
-#     return ''
-
 def get_range():
     start = None
     end = None

@@ -47,6 +47,35 @@ def home():
                     readings = Reading(g.db).query(sql.format(sensor_id = sensor.id,today=today))
                     if readings:
                         data.append(readings[0])
+        
+        history = temp_history() # About a weeks worth of data
+
+    return render_template("home/home.html",data=data,history=history)
 
 
-    return render_template("home/home.html",data=data)
+def temp_history() -> list:
+    """ Return a list of DataRow objects of the 
+    min and max temps for the last few days
+    
+    Args: None
+    
+    Returns:  list of DataRows
+    
+    Raises: None
+    """
+    # import pdb; pdb.set_trace()
+
+    sql = """select 
+    substr(reading_time,1,10) as date, 
+    max(temperature) as max, min(temperature) as min, 
+    (select max(temperature) from reading order by reading_time DESC limit 7) as weeklyMax,
+    (select min(temperature) from reading order by reading_time DESC limit 7) as weeklyMin,
+    sensor.name from reading 
+    join sensor on sensor_id = sensor.id 
+    group by sensor.id, substr(reading_time,1,10)
+    order by sensor.name DESC, date
+    limit 7"""
+    
+    rows = Reading(g.db).query(sql)
+
+    return rows

@@ -87,7 +87,34 @@
             </td>
         </tr>
     {% endfor %}
-    </table></div>
+    </table>
+   {% if history %}
+    <div id="history">
+        {% set sensor_name = [""] %}
+        <!-- Set the number of pix per degree F -->
+        {% set pixPerDegree = 60 / (history[0].weeklyMax + history[0].weeklyMin) %}
+        <p>{{pixPerDegree}}</p>
+        <div>
+        {% for row in history %}
+        {% if row.name != sensor_name[0] %}
+            {% set x = sensor_name.append(row.name) %}
+            {% set x = sensor_name.pop(0) %}
+            </div>
+            <h4 class="w3-row">{{sensor_name[0]}}</h4>
+            <div class="w3-row" style="border: solid 1pt black;">
+        {%endif%}
+        <div class="w3-col" style="width: 14.28%;height:80px;"
+            title="{{row.date}}, Max: {{'%0.2f'|format(row.max)}}, Min: {{'%0.2f'|format(row.min)}}">
+                <p class="w3-row" style="text-align: center;size:9pt;margin-bottom:0;">{{'%0.0f'|format(row.max)}}</p>
+                <p class="w3-row" style="background-image: linear-gradient(red, blue);height:{{(row.max + row.min) * pixPerDegree}}px;margin:0 3pt;">&nbsp;</p>
+                <p class="w3-row" style="text-align: center;size:9pt;">{{'%0.0f'|format(row.min)}}</p>
+           </div>
+        {% endfor %}
+        </div>
+    </div>
+</div>
+ 
+    {% endif %}
 {% else %}
     <h2>Sorry, there is no data to report...</h2>
 {% endif %}

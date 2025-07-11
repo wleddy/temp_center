@@ -60,7 +60,15 @@
         margin:0;
         padding:0;
     }
-    
+    .daily-date-contain {
+        height:15pt;
+        width:100%;
+        background-color:#666;
+        color:white;
+        size:9pt;
+        text-align: center;
+        margin:0;
+    }
     @media (prefers-color-scheme: dark) {
         .device_name {
             text-align: center;
@@ -124,8 +132,8 @@
             <h4 class="w3-row">{{row.name}}</h4>
             <div class="w3-row sensor-container" style="border: solid 1pt black;">
         {%endif%}
-        <div class="w3-col daily-history"
-            title="{{row.date}}, Max: {{'%0.2f'|format(row.max)}}, Min: {{'%0.2f'|format(row.min)}}">
+        <div class="w3-col daily-history" >
+            <div class="daily-date-contain" >{{ row.date[8:] }}</div>
                 <p class="w3-row daily-temp" >{{'%0.0f'|format(row.max)}}</p>
                 {% set x = top_spacer.append((row.weekly_max - row.max)) %}
                 {% set x = top_spacer.pop(0) %}

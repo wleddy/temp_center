@@ -43,6 +43,24 @@
     .lo {color:deepskyblue;padding-right:6pt;}
     .hi {color:red;padding-left:6pt;top:-2px;}
 
+    .daily-history {
+        width: 14.28%;
+    }
+    .daily-temp {
+        text-align: center;
+        size:9pt;
+        margin:0;
+    }
+    .daily-graph {
+        background-image: linear-gradient(red, blue);
+        margin:0 3pt;
+    }
+    .daily-spacer {
+        background:transparent;
+        margin:0;
+        padding:0;
+    }
+    
     @media (prefers-color-scheme: dark) {
         .device_name {
             text-align: center;
@@ -104,16 +122,16 @@
             {% set x = pixPerDegree.pop(0) %}
             </div>
             <h4 class="w3-row">{{row.name}}</h4>
-            <div class="w3-row" style="border: solid 1pt black;">
+            <div class="w3-row sensor-container" style="border: solid 1pt black;">
         {%endif%}
-        <div class="w3-col" style="width: 14.28%;"
+        <div class="w3-col daily-history"
             title="{{row.date}}, Max: {{'%0.2f'|format(row.max)}}, Min: {{'%0.2f'|format(row.min)}}">
-                <p class="w3-row" style="text-align: center;size:9pt;margin-bottom:0;">{{'%0.0f'|format(row.max)}}</p>
+                <p class="w3-row daily-temp" >{{'%0.0f'|format(row.max)}}</p>
                 {% set x = top_spacer.append((row.weekly_max - row.max)) %}
                 {% set x = top_spacer.pop(0) %}
-                <p class="top-spacer" style="background:transparent;height:{{ top_spacer[0] * pixPerDegree[0] }}px;margin:0;padding:0;">&nbsp;</p>
-                <p class="w3-row" style="background-image: linear-gradient(red, blue);height:{{row.daily_range * pixPerDegree[0] }}px;margin:0 3pt;">&nbsp;</p>
-                <p class="w3-row" style="text-align: center;size:9pt;margin:0;">{{'%0.0f'|format(row.min)}}</p>
+                <p class="daily-spacer" style="height:{{ top_spacer[0] * pixPerDegree[0] }}px;">&nbsp;</p>
+                <p class="w3-row daily-graph" style="height:{{row.daily_range * pixPerDegree[0] }}px;">&nbsp;</p>
+                <p class="w3-row daily-temp" >{{'%0.0f'|format(row.min)}}</p>
            </div>
         {% endfor %}
         </div>

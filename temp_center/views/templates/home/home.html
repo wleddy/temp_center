@@ -43,6 +43,9 @@
     .lo {color:deepskyblue;padding-right:6pt;}
     .hi {color:red;padding-left:6pt;top:-2px;}
 
+    .sensor-container {
+        border: solid 1pt black;
+    }
     .daily-history {
         width: 14.28%;
     }
@@ -74,6 +77,9 @@
             text-align: center;
             color:white;
             background-color:rgb(122, 120, 120);
+        }
+        .sensor-container {
+            border-color: white;
     }
 </style>
 
@@ -130,7 +136,7 @@
             {% set x = pixPerDegree.pop(0) %}
             </div>
             <h4 class="w3-row">{{row.name}}</h4>
-            <div class="w3-row sensor-container" style="border: solid 1pt black;">
+            <div class="w3-row sensor-container" >
         {%endif%}
         <div class="w3-col daily-history" >
             <div class="daily-date-contain" >{{ row.date[8:] }}</div>

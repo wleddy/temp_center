@@ -67,9 +67,13 @@ def temp_history() -> list:
 
     sql = """select 
     substr(reading_time,1,10) as date, 
-    max(temperature) as max, min(temperature) as min, 
-    (select max(temperature) from reading order by reading_time DESC limit 7) as weeklyMax,
-    (select min(temperature) from reading order by reading_time DESC limit 7) as weeklyMin,
+    max(temperature) as max, 
+    min(temperature) as min, 
+    (select max(temperature) from reading where reading.sensor_id = sensor.id order by reading_time DESC limit 7) as weekly_max,
+    (select min(temperature) from reading where reading.sensor_id = sensor.id order by reading_time DESC limit 7) as weekly_min,
+    reading.scale as scale,
+    0 as daily_range,
+    0 as weekly_range,
     sensor.name from reading 
     join sensor on sensor_id = sensor.id 
     group by sensor.id, substr(reading_time,1,10)
@@ -78,4 +82,33 @@ def temp_history() -> list:
     
     rows = Reading(g.db).query(sql)
 
+    if rows:
+        # calulate the temp ranges
+        for row in rows:
+            row.daily_range = round(normalize_range(row.max,row.scale) - normalize_range(row.min,row.scale),0)
+            row.weekly_range = round(normalize_range(row.weekly_max,row.scale) - normalize_range(row.weekly_min,row.scale),0)
+
     return rows
+
+
+def normalize_range(val,scale):
+    """ convert negative temps to whole numbers
+    
+    If the temp is less than zero convert it to the number
+    of degrees from zero
+    
+    Args: val: float; the number to convert
+          scale: str; C or F
+    
+    Returns:  float
+    
+    Raises: None
+    """
+
+    if val < 0:
+        val = abs(val)
+        if scale.upper() == 'F':
+            val += 32
+
+    return val
+

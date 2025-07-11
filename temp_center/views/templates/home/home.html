@@ -91,29 +91,29 @@
    {% if history %}
     <div id="history">
         {% set sensor_name = [""] %}
+        {% set top_spacer = [0] %}
+        {% set pixPerDegree = [0] %}
         <!-- Set the number of pix per degree F -->
         {% set rangeHeight = 60 %}
-        {% if (history[0].weeklyMax + history[0].weeklyMin) < rangeHeight %}
-            {% set pixPerDegree = 1 %}
-        {% else %}
-            {% set pixPerDegree = rangeHeight / (history[0].weeklyMax + history[0].weeklyMin) %}
-        {% endif %}
-        <p>{{pixPerDegree}}</p>
         <div>
         {% for row in history %}
         {% if row.name != sensor_name[0] %}
             {% set x = sensor_name.append(row.name) %}
             {% set x = sensor_name.pop(0) %}
+            {% set x = pixPerDegree.append(rangeHeight / row.weekly_range) %}
+            {% set x = pixPerDegree.pop(0) %}
             </div>
-            <h4 class="w3-row">{{sensor_name[0]}}</h4>
+            <h4 class="w3-row">{{row.name}}</h4>
             <div class="w3-row" style="border: solid 1pt black;">
         {%endif%}
         <div class="w3-col" style="width: 14.28%;"
             title="{{row.date}}, Max: {{'%0.2f'|format(row.max)}}, Min: {{'%0.2f'|format(row.min)}}">
                 <p class="w3-row" style="text-align: center;size:9pt;margin-bottom:0;">{{'%0.0f'|format(row.max)}}</p>
-                <p class="top-spacer" style="background:transparent;height:{{(rangeHeight - ((row.max + row.min)*pixPerDegree)) | abs | round(0) }}px;margin:0;padding:0;">&nbsp;</p>
-                <p class="w3-row" style="background-image: linear-gradient(red, blue);height:{{(row.max + row.min) * pixPerDegree}}px;margin:0 3pt;">&nbsp;</p>
-                <p class="w3-row" style="text-align: center;size:9pt;">{{'%0.0f'|format(row.min)}}</p>
+                {% set x = top_spacer.append((row.weekly_max - row.max)) %}
+                {% set x = top_spacer.pop(0) %}
+                <p class="top-spacer" style="background:transparent;height:{{ top_spacer[0] * pixPerDegree[0] }}px;margin:0;padding:0;">&nbsp;</p>
+                <p class="w3-row" style="background-image: linear-gradient(red, blue);height:{{row.daily_range * pixPerDegree[0] }}px;margin:0 3pt;">&nbsp;</p>
+                <p class="w3-row" style="text-align: center;size:9pt;margin:0;">{{'%0.0f'|format(row.min)}}</p>
            </div>
         {% endfor %}
         </div>

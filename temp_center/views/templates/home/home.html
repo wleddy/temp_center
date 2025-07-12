@@ -1,4 +1,5 @@
 {% extends "layout.html" %}
+
 {% block title %}{{ g.title }}{% endblock %}
 {% block body %}
 <style>
@@ -139,7 +140,7 @@
             <div class="w3-row sensor-container" >
         {%endif%}
         <div class="w3-col daily-history" >
-            <div class="daily-date-contain" >{{ row.date[8:] }}</div>
+            <div class="daily-date-contain" >{{ row.day_letter }}</div>
                 <p class="w3-row daily-temp" >{{'%0.0f'|format(row.max)}}</p>
                 {% set x = top_spacer.append((row.weekly_max - row.max)) %}
                 {% set x = top_spacer.pop(0) %}

@@ -1,7 +1,9 @@
 from flask import request, session, g, redirect, url_for, \
      render_template, flash, Blueprint
 from temp_center.models import Sensor, Device, Reading
-from datetime import datetime
+from datetime import datetime, timedelta
+from shotglass2.takeabeltof.date_utils import local_datetime_now, getDatetimeFromString
+from shotglass2.takeabeltof.jinja_filters import short_day_and_date_string
 
 mod = Blueprint('home',__name__, template_folder='templates/', url_prefix='')
 
@@ -65,8 +67,10 @@ def temp_history() -> list:
     """
     # import pdb; pdb.set_trace()
 
+    query_date = (local_datetime_now() - timedelta(days=7))
+
     sql = """select 
-    substr(reading_time,1,10) as date, 
+    substr(reading_time,1,10) as reading_date, 
     max(temperature) as max, 
     min(temperature) as min, 
     (select max(temperature) from reading where reading.sensor_id = sensor.id order by reading_time DESC limit 7) as weekly_max,
@@ -74,11 +78,14 @@ def temp_history() -> list:
     reading.scale as scale,
     0 as daily_range,
     0 as weekly_range,
-    sensor.name from reading 
+    "" as day_letter, 
+    sensor.name 
+    from reading 
     join sensor on sensor_id = sensor.id 
+    where reading_time >= date('{query_date}','localtime')
     group by sensor.id, substr(reading_time,1,10)
-    order by sensor.name DESC, date
-    limit 7"""
+    order by sensor.name DESC, reading_date
+    limit 14""".format(query_date=query_date)
     
     rows = Reading(g.db).query(sql)
 
@@ -87,7 +94,9 @@ def temp_history() -> list:
         for row in rows:
             row.daily_range = round(normalize_range(row.max,row.scale) - normalize_range(row.min,row.scale),0)
             row.weekly_range = round(normalize_range(row.weekly_max,row.scale) - normalize_range(row.weekly_min,row.scale),0)
-
+            # represent the day in the chart as the first letter of the day
+            row.day_letter = short_day_and_date_string(getDatetimeFromString(row.reading_date))[0:1]
+            
     return rows
 
 

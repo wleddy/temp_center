@@ -65,9 +65,9 @@ def temp_history() -> list:
     
     Raises: None
     """
-    # import pdb; pdb.set_trace()
+    import pdb; pdb.set_trace()
 
-    query_date = (local_datetime_now() - timedelta(days=7))
+    query_date = (local_datetime_now() - timedelta(days=6))
 
     sql = """select 
     substr(reading_time,1,10) as reading_date, 
@@ -92,11 +92,11 @@ def temp_history() -> list:
     if rows:
         # calulate the temp ranges
         for row in rows:
-            row.daily_range = round(normalize_range(row.max,row.scale) - normalize_range(row.min,row.scale),0)
+            row.daily_range =  round(normalize_range(row.max,row.scale) - normalize_range(row.min,row.scale),0)
             row.weekly_range = round(normalize_range(row.weekly_max,row.scale) - normalize_range(row.weekly_min,row.scale),0)
             # represent the day in the chart as the first letter of the day
             row.day_letter = short_day_and_date_string(getDatetimeFromString(row.reading_date))[0:1]
-            
+
     return rows
 
 

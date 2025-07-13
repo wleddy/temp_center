@@ -65,16 +65,16 @@ def temp_history() -> list:
     
     Raises: None
     """
-    import pdb; pdb.set_trace()
+    # import pdb; pdb.set_trace()
 
     query_date = (local_datetime_now() - timedelta(days=6))
 
     sql = """select 
     substr(reading_time,1,10) as reading_date, 
-    max(temperature) as max, 
-    min(temperature) as min, 
-    (select max(temperature) from reading where reading.sensor_id = sensor.id order by reading_time DESC limit 7) as weekly_max,
-    (select min(temperature) from reading where reading.sensor_id = sensor.id order by reading_time DESC limit 7) as weekly_min,
+    round(max(temperature),0) as max, 
+    round(min(temperature),0) as min, 
+    round((select max(temperature) from reading where reading.sensor_id = sensor.id and reading_time >= date('{query_date}','localtime') order by reading_time DESC limit 7),0) as weekly_max,
+    round((select min(temperature) from reading where reading.sensor_id = sensor.id and reading_time >= date('{query_date}','localtime') order by reading_time DESC limit 7),0) as weekly_min,
     reading.scale as scale,
     0 as daily_range,
     0 as weekly_range,

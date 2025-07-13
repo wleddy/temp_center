@@ -52,7 +52,7 @@
     }
     .daily-temp {
         text-align: center;
-        size:9pt;
+        font-size:9pt;
         margin:0;
     }
     .daily-graph {
@@ -69,7 +69,7 @@
         width:100%;
         background-color:#666;
         color:white;
-        size:9pt;
+        font-size:9pt;
         text-align: center;
         margin:0;
     }
@@ -142,7 +142,11 @@
         <div class="w3-col daily-history" >
             <div class="daily-date-contain" >{{ row.day_letter }}</div>
                 <p class="w3-row daily-temp" >{{'%0.0f'|format(row.max)}}</p>
+                {% if row.weekly_max > row.max %}
                 {% set x = top_spacer.append((row.weekly_max - row.max)) %}
+                {% else %}
+                {% set x = top_spacer.append(0) %}
+                {% endif %}
                 {% set x = top_spacer.pop(0) %}
                 <p class="daily-spacer" style="height:{{ top_spacer[0] * pixPerDegree[0] }}px;">&nbsp;</p>
                 <p class="w3-row daily-graph" style="height:{{row.daily_range * pixPerDegree[0] }}px;">&nbsp;</p>

@@ -56,8 +56,11 @@
         margin:0;
     }
     .daily-graph {
-        background-image: linear-gradient(red, blue);
+        background-image: linear-gradient(red, coral, rgb(236, 239, 126));
         margin:0 3pt;
+    }
+    .extra-cold-graph {
+        background-image: linear-gradient(red, coral, rgb(236, 239, 126), blue) !important;
     }
     .daily-spacer {
         background:transparent;
@@ -149,7 +152,8 @@
                 {% endif %}
                 {% set x = top_spacer.pop(0) %}
                 <p class="daily-spacer" style="height:{{ top_spacer[0] * pixPerDegree[0] }}px;">&nbsp;</p>
-                <p class="w3-row daily-graph" style="height:{{row.daily_range * pixPerDegree[0] }}px;">&nbsp;</p>
+                <p class="w3-row daily-graph {% if row.min < 60 %}extra-cold-graph{% endif %}" 
+                    style="height:{{row.daily_range * pixPerDegree[0] }}px;">&nbsp;</p>
                 <p class="w3-row daily-temp" >{{'%0.0f'|format(row.min)}}</p>
            </div>
         {% endfor %}

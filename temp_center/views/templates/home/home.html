@@ -136,7 +136,11 @@
         {% if row.name != sensor_name[0] %}
             {% set x = sensor_name.append(row.name) %}
             {% set x = sensor_name.pop(0) %}
+            {% if row.weekly_range == 0 %}
+                {% set x = pixPerDegree.append(rangeHeight) %}
+            {% else %}
             {% set x = pixPerDegree.append(rangeHeight / row.weekly_range) %}
+            {% endif %}
             {% set x = pixPerDegree.pop(0) %}
             </div>
             <h4 class="w3-row">{{row.name}}</h4>

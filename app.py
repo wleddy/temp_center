@@ -252,6 +252,6 @@ if __name__ == '__main__':
         # create the default database if needed
         initalize_base_tables()
         
-    app.run(host='tc.local', port=5000)
+    app.run(host='127.0.0.1', port=5000)
     
     

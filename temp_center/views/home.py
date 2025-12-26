@@ -1,6 +1,7 @@
+from enphase import enphase
 from flask import request, session, g, redirect, url_for, \
      render_template, flash, Blueprint
-from temp_center.models import Sensor, Device, Reading
+from temp_center.models import Sensor, Device, Reading, Production
 from datetime import datetime, timedelta
 from shotglass2.takeabeltof.date_utils import local_datetime_now, getDatetimeFromString
 from shotglass2.takeabeltof.jinja_filters import short_day_and_date_string
@@ -51,8 +52,69 @@ def home():
                         data.append(readings[0])
         
         history = temp_history() # About a weeks worth of data
+    
+    # get the solor production numbers
+    production = []
+    update_production_database()
+    # import pdb;pdb.set_trace()
+    query_date = str(local_datetime_now() - timedelta(days=6))[0:10]
+    # remove records older than 7 days
+    prod_recs = Production(g.db).query(f"delete from production where production_date < '{query_date}'")
 
-    return render_template("home/home.html",data=data,history=history)
+   
+    sql = f"""Select production, 
+    production_date,
+    "" as day_letter
+    from production
+    order by production_date
+    limit 7
+    """
+    prod_recs = Production(g.db).query(sql)
+    # limit selection to 7 days
+    if prod_recs:
+        for prod_rec in prod_recs:
+            prod_rec.day_letter = short_day_and_date_string(getDatetimeFromString(prod_rec.production_date))[0:1]
+            try:
+                prod_rec.production = round(float(prod_rec.production)/1000,0) #convert to kWh
+            except:
+                prod_rec.production = -1.0
+
+            production.append({"production":prod_rec.production,"production_date":prod_rec.production_date})
+ 
+
+    return render_template("home/home.html",
+                           data=data,history=history, 
+                           production=prod_recs,
+                           )
+
+
+def update_production_database() -> None:
+    """ Get current solar production data
+    
+    Query the local Enphase Gateway to get the latest production data, update
+    the production table.
+    
+    Args: None
+    
+    Returns:  None
+    
+    Raises: None
+    """
+
+    current_data = enphase.get_local_production()
+    prod = Production(g.db)
+
+    watthours = current_data.get("wattHoursToday")
+    if watthours:
+        today = str(local_datetime_now())[0:10] #Date only
+        # Update or create a production record
+        rec = prod.select_one(where=f"production_date = '{today}'")
+        if not rec:
+            rec = prod.new()
+            rec.production_date = today
+        rec.production = watthours
+        rec.save()
+        rec.commit()
 
 
 def temp_history() -> list:

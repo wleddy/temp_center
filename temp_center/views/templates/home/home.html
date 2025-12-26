@@ -76,6 +76,41 @@
         text-align: center;
         margin:0;
     }
+    /* Solar Production */
+    .solar-production {
+        height:80px;
+        background-image:url(/static/images/sun.png);
+        background-repeat: no-repeat;
+    }
+    .production-1{
+        /* Full production */
+        background-size: 100%;
+        background-position: center top;
+    }
+   .production-2{
+        /* 75% of full production */
+        background-size: 80%;
+        background-position: center 20%;
+    }
+   .production-3{
+        /* 50% of full production */
+        background-size: 60%;
+        background-position: center 50%;
+    }
+   .production-4{
+        /* 25% of full production */
+        background-size: 40%;
+        background-position: center 80%;
+    }
+   .production-5{
+        /* No significant production */
+        background-size: 30%;
+        background-position: center 90%;
+    }
+    .kWh {
+        font-size: .5em;
+    }
+
     @media (prefers-color-scheme: dark) {
         .device_name {
             text-align: center;
@@ -131,7 +166,6 @@
         {% set pixPerDegree = [0] %}
         <!-- Set the number of pix per degree F -->
         {% set rangeHeight = 60 %}
-        <div>
         {% for row in history %}
         {% if row.name != sensor_name[0] %}
             {% set x = sensor_name.append(row.name) %}
@@ -161,6 +195,30 @@
                 <p class="w3-row daily-temp" >{{'%0.0f'|format(row.min)}}</p>
            </div>
         {% endfor %}
+        </div>
+        {% endif %}
+        {% if production %}
+        <h4 class="w3-row">Solar</h4>
+        <div class="w3-row sensor-container" >
+            <div id="production" class="w3-col">
+                {% set max_production = 18 %} <!-- full production in the summer in kWh -->
+                {% for row in production %}
+                <div class="w3-col daily-history" >
+                    <div class="daily-date-contain" >{{ row.day_letter }}</div>
+                        <p class="w3-row daily-temp" >{{'%0.0f'|format(row.production)}}<span class="kWh"> kWh</span></p>
+                        <div class="solar-production
+                        {% if row.production < max_production * 0.1 %}production-5
+                        {% elif row.production < max_production * 0.3 %}production-4
+                        {% elif row.production < max_production * 0.5 %}production-3
+                        {% elif row.production < max_production * 0.7 %}production-2
+                        {% else %}production-1{% endif %}
+                        ">
+                            <p class="w3-row ">&nbsp;</p> <!-- Sun goes here -->
+                        </div>
+                </div>
+            {% endfor %}
+            </div>
+        </div>
         </div>
     </div>
     {% endif %}

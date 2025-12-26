@@ -125,7 +125,36 @@ class Reading(SqliteTable):
     
         return column_list
 
-            
+class Production(SqliteTable):
+    """Represents production from the solor panels"""
+    def __init__(self,db_connection):
+        super().__init__(db_connection)
+        self.table_name = 'production'
+        self.order_by_col = 'production_date DESC'
+        self.defaults = {}
+        
+    def create_table(self):
+        """Define and create a table"""
+        
+        sql = """
+            production_date DATE,
+            production REAL -- production in watt hours
+         """
+        super().create_table(sql)
+        
+        
+    @property
+    def _column_list(self):
+        """A list of dicts used to add fields to an existing table.
+        """
+    
+        column_list = [
+        # {'name':'expires','definition':'DATETIME',},
+        ]
+    
+        return column_list
+
+
 def init_db(db):
     """Create Tables."""
     l = globals().copy()

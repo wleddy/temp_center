@@ -8,6 +8,7 @@ from shotglass2.takeabeltof.utils import cleanRecordID, printException
 from shotglass2.takeabeltof.date_utils import local_datetime_now
 from shotglass2.users.admin import login_required, table_access_required
 from temp_center.models import Device, Sensor, Reading, Calibration
+from temp_center.views.home import update_production_database
 
 from datetime import datetime, timedelta
 import os
@@ -21,10 +22,10 @@ mod = Blueprint('api', __name__, template_folder='templates/',
 @mod.route('/add_reading/<path:path>', methods=['GET'])
 @mod.route('/add_reading/<path:path>/', methods=['GET'])
 @mod.route('/add_reading', methods=['GET'])
-def add_reading(path:str=None):
-    """Recode a reading from a sensor sent here
+def add_reading(path:str=None)->str:
+    """ Recode a reading from a sensor sent here
     
-    The values are sent by positional data included in the path separated by slashes.
+     The values are sent by positional data included in the path separated by slashes.
     The format is:
         <sensor_id>/
         <temperature (corrected as displayed on device)>/
@@ -33,12 +34,23 @@ def add_reading(path:str=None):
     
     So it would look something like: '/1/78.2/74.2/F/'
 
+    Also cause the Solar Production data table to be updated with the daily total
+    
+    Args: path: str, the data to process
+    
+    Returns:  result: str, Either "Ok" or a message with errors generated
+    
+    Raises: None
     """
+    
     result = ""
     error_list = []
     rec = {}
 
     # import pdb;pdb.set_trace()
+
+    # Always update the solar production
+    update_production_database()
 
     if not path:
         return 'No path'

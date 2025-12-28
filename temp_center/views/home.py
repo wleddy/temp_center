@@ -120,7 +120,9 @@ def update_production_database() -> None:
             rec = prod.new()
             rec.production_date = today
             rec.production = 0.0
-        if prev_rec.production == watthours and rec.production == 0.0:
+        if not prev_rec:
+            rec.production = watthours
+        elif prev_rec.production == watthours and rec.production == 0.0:
             pass
         else:
             rec.production = watthours

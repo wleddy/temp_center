@@ -93,6 +93,12 @@ def update_production_database() -> None:
     
     Query the local Enphase Gateway to get the latest production data, update
     the production table.
+
+    It looks like the gateway does not consider that a new day has started until
+    at least some electrons have been shifted and it keeps reporting the total from the
+    previous day. So... If the date has changed from the most recent record, and the 
+    production reported is the same as the previous day, save the record with 0 production
+    until the reported production is different from the previous day.
     
     Args: None
     
@@ -104,15 +110,21 @@ def update_production_database() -> None:
     current_data = enphase.get_local_production()
     prod = Production(g.db)
 
+    today = str(local_datetime_now())[0:10] #Date only
+    prev_rec = prod.query_one(f"select * from production where production_date < '{today}' order by production_date DESC")
     watthours = current_data.get("wattHoursToday")
     if watthours:
-        today = str(local_datetime_now())[0:10] #Date only
         # Update or create a production record
         rec = prod.select_one(where=f"production_date = '{today}'")
         if not rec:
             rec = prod.new()
             rec.production_date = today
-        rec.production = watthours
+            rec.production = 0.0
+        if prev_rec.production == watthours and rec.production == 0.0:
+            pass
+        else:
+            rec.production = watthours
+
         rec.save()
         rec.commit()
 

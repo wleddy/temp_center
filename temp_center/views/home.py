@@ -112,23 +112,23 @@ def update_production_database() -> None:
 
     today = str(local_datetime_now())[0:10] #Date only
     prev_rec = prod.query_one(f"select * from production where production_date < '{today}' order by production_date DESC")
+    # Select or create a production record
+    rec = prod.select_one(where=f"production_date = '{today}'")
+    if not rec:
+        rec = prod.new()
+        rec.production_date = today
+        rec.production = 0.0
     watthours = current_data.get("wattHoursToday")
     if watthours:
-        # Update or create a production record
-        rec = prod.select_one(where=f"production_date = '{today}'")
-        if not rec:
-            rec = prod.new()
-            rec.production_date = today
-            rec.production = 0.0
         if not prev_rec:
-            rec.production = watthours
+            rec.production = watthours # First record ever
         elif prev_rec.production == watthours and rec.production == 0.0:
-            pass
+            pass # gateway is still returning yesterday's production
         else:
             rec.production = watthours
 
-        rec.save()
-        rec.commit()
+    rec.save()
+    rec.commit()
 
 
 def temp_history() -> list:

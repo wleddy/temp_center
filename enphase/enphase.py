@@ -39,7 +39,11 @@ def get_local_production() ->dict:
             "Accept":"application/json",
             "Authorization":f"Bearer {token}",
         }
-        response = requests.get(host, headers=headers, verify=False ) # don't try to verify certificate
+        response = requests.get(host, 
+                                headers=headers, 
+                                verify=False, # don't try to verify certificate
+                                timeout=(4.0,4.0) # Shorten the timeout '(connect limit,read limit)'
+                                ) 
 
         if response.status_code == 200:
             # print(response.text)
@@ -57,6 +61,16 @@ def get_local_production() ->dict:
                         while attempting to get the Enphase producton data. 
                         Responce Code: {response.status_code}"""
                         )
+            
+    except requests.ConnectTimeout:
+        # just what it says... took too long
+        pass
+
+    except urllib3.exceptions.NewConnectionError:
+        # Usually Max Retries error
+        # Sometimes the gateway is just very slow to respond, so ignore it...
+        pass
+
     except Exception as e:
         alert_admin("Enphase Production Exception",
                     f"""

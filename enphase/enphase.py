@@ -66,8 +66,11 @@ def get_local_production() ->dict:
         # just what it says... took too long
         pass
 
-    except urllib3.exceptions.HTTPError:
-        # Usually Max Retries or timeout error
+    except urllib3.exceptions.NewConnectionError:
+        # Sometimes the gateway is just very slow to respond, so ignore it...
+        pass
+
+    except urllib3.exceptions.MaxRetryError:
         # Sometimes the gateway is just very slow to respond, so ignore it...
         pass
 

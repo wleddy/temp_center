@@ -74,6 +74,10 @@ def get_local_production() ->dict:
         # Sometimes the gateway is just very slow to respond, so ignore it...
         pass
 
+    except urllib3.exceptions.HTTPSConnectionPool:
+        # Still more errors from urllib
+        pass
+
     except Exception as e:
         alert_admin("Enphase Production Exception",
                     f"""

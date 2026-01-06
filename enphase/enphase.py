@@ -74,18 +74,18 @@ def get_local_production() ->dict:
         # Sometimes the gateway is just very slow to respond, so ignore it...
         pass
 
-    except urllib3.exceptions.HTTPSConnectionPool:
-        # Still more errors from urllib
-        pass
-
+ 
     except Exception as e:
-        alert_admin("Enphase Production Exception",
-                    f"""
-                    An Error was encountered while attempting to get the 
-                    production data from the Enphase Gateway.
+        if "HTTPSConnectionPool" in str(e):
+            pass
+        else:
+            alert_admin("Enphase Production Exception",
+                        f"""
+                        An Error was encountered while attempting to get the 
+                        production data from the Enphase Gateway.
 
-                    Exception: {str(e)}
-                    """
-                    )
+                        Exception: {str(e)}
+                        """
+                        )
 
     return production

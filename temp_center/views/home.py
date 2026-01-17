@@ -54,9 +54,7 @@ def home():
         history = temp_history() # About a weeks worth of data
     
     # get the solor production numbers
-    production = []
     update_production_database()
-    # import pdb;pdb.set_trace()
     query_date = str(local_datetime_now() - timedelta(days=6))[0:10]
     # remove records older than 7 days
     prod_recs = Production(g.db).query(f"delete from production where production_date < '{query_date}'")
@@ -79,9 +77,12 @@ def home():
             except:
                 prod_rec.production = -1.0
 
-            production.append({"production":prod_rec.production,"production_date":prod_rec.production_date})
- 
-
+        # # for testing... load a range of values
+        # kwh = 3
+        # for x in range(len(prod_recs)):
+        #     prod_recs[x].production = kwh
+        #     kwh += 18/7 
+        
     return render_template("home/home.html",
                            data=data,history=history, 
                            production=prod_recs,

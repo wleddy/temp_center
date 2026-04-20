@@ -44,6 +44,14 @@ def get_local_production() ->dict:
                                 verify=False, # don't try to verify certificate
                                 timeout=(4.0,4.0) # Shorten the timeout '(connect limit,read limit)'
                                 ) 
+        
+        from app import app
+        app.logger.info(f'{response.status_code=}')
+        if response.text:
+            app.logger.info(f'{response.text=}')
+        else:
+            app.logger.info(f"Invalid response from host {response.status_code=}...")
+
 
         if response.status_code == 200:
             # print(response.text)

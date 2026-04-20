@@ -73,25 +73,25 @@ def get_local_production() ->dict:
                         Responce Code: {response.status_code}"""
                         )
             
-    except requests.ConnectTimeout:
+    except requests.ConnectTimeout as e:
         # just what it says... took too long
-        app.logger.info(f'[{local_datetime_now()}] Timeout error')
+        app.logger.exception(e,f'[{local_datetime_now()}] Timeout error')
         pass
 
-    except urllib3.exceptions.NewConnectionError:
+    except urllib3.exceptions.NewConnectionError as e:
         # Sometimes the gateway is just very slow to respond, so ignore it...
-        app.logger.info(f'[{local_datetime_now()}] NewConnectionError')
+        app.logger.exception(e,f'[{local_datetime_now()}] NewConnectionError')
         pass
 
-    except urllib3.exceptions.MaxRetryError:
+    except urllib3.exceptions.MaxRetryError as e:
         # Sometimes the gateway is just very slow to respond, so ignore it...
-        app.logger.info(f'[{local_datetime_now()}] MaxRetryError')
+        app.logger.exception(e,f'[{local_datetime_now()}] MaxRetryError')
         pass
 
  
     except Exception as e:
         if "HTTPSConnectionPool" in str(e):
-            app.logger.info(f'[{local_datetime_now()}] HTTPSConnectionPool Error')
+            app.logger.exception(e,f'[{local_datetime_now()}] HTTPSConnectionPool Error')
             pass
         else:
             app.logger.exception(e,f'[{local_datetime_now()}] Unexpected Exception')

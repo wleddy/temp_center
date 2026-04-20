@@ -39,13 +39,15 @@ def get_local_production() ->dict:
             "Accept":"application/json",
             "Authorization":f"Bearer {token}",
         }
+        from app import app
+        app.logger.info(f'starting request at {host}')
+        # import pdb;pdb.set_trace()
         response = requests.get(host, 
                                 headers=headers, 
                                 verify=False, # don't try to verify certificate
                                 timeout=(4.0,4.0) # Shorten the timeout '(connect limit,read limit)'
                                 ) 
         
-        from app import app
         app.logger.info(f'{response.status_code=}')
         if response.text:
             app.logger.info(f'{response.text=}')

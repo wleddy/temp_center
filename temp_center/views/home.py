@@ -108,7 +108,14 @@ def update_production_database() -> None:
     Raises: None
     """
 
+    # import pdb; pdb.set_trace()
+    from app import app
     current_data = enphase.get_local_production()
+    if current_data:
+        app.logger.info(current_data)
+    else:
+        app.logger.info("No solar production received...")
+
     prod = Production(g.db)
 
     today = str(local_datetime_now())[0:10] #Date only

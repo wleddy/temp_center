@@ -20,6 +20,7 @@ def get_local_production() ->dict:
     Raises: None
     """
 
+    from shotglass2.takeabeltof.date_utils import local_datetime_now
     from shotglass2.takeabeltof.mailer import alert_admin
     import json
     import requests
@@ -40,7 +41,7 @@ def get_local_production() ->dict:
             "Authorization":f"Bearer {token}",
         }
         from app import app
-        app.logger.info(f'starting request at {host}')
+        app.logger.info(f'[{local_datetime_now()}] starting request at {host}')
         # import pdb;pdb.set_trace()
         response = requests.get(host, 
                                 headers=headers, 
@@ -50,9 +51,9 @@ def get_local_production() ->dict:
         
         app.logger.info(f'{response.status_code=}')
         if response.text:
-            app.logger.info(f'{response.text=}')
+            app.logger.info(f'[{local_datetime_now()}] {response.text=}')
         else:
-            app.logger.info(f"Invalid response from host {response.status_code=}...")
+            app.logger.info(f"[{local_datetime_now()}] Invalid response from host {response.status_code=}...")
 
 
         if response.status_code == 200:
@@ -74,21 +75,26 @@ def get_local_production() ->dict:
             
     except requests.ConnectTimeout:
         # just what it says... took too long
+        app.logger.info(f'[{local_datetime_now()}] Timeout error')
         pass
 
     except urllib3.exceptions.NewConnectionError:
         # Sometimes the gateway is just very slow to respond, so ignore it...
+        app.logger.info(f'[{local_datetime_now()}] NewConnectionError')
         pass
 
     except urllib3.exceptions.MaxRetryError:
         # Sometimes the gateway is just very slow to respond, so ignore it...
+        app.logger.info(f'[{local_datetime_now()}] MaxRetryError')
         pass
 
  
     except Exception as e:
         if "HTTPSConnectionPool" in str(e):
+            app.logger.info(f'[{local_datetime_now()}] HTTPSConnectionPool Error')
             pass
         else:
+            app.logger.exception(e,f'[{local_datetime_now()}] Unexpected Exception')
             alert_admin("Enphase Production Exception",
                         f"""
                         An Error was encountered while attempting to get the 

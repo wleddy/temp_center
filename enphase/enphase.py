@@ -96,4 +96,5 @@ def get_local_production() ->dict:
                         """
                         )
 
+    app.logger.info(f'[{local_datetime_now()}] Production returned "{production}"')
     return production

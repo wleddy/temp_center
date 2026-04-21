@@ -43,10 +43,14 @@ def get_local_production() ->dict:
         from app import app
         app.logger.info(f'[{local_datetime_now()}] starting request at {host}')
         # import pdb;pdb.set_trace()
+        # response = requests.get(host, 
+        #                         headers=headers, 
+        #                         verify=False, # don't try to verify certificate
+        #                         timeout=(4.0,4.0) # Shorten the timeout '(connect limit,read limit)'
+        #                         ) 
         response = requests.get(host, 
                                 headers=headers, 
                                 verify=False, # don't try to verify certificate
-                                timeout=(4.0,4.0) # Shorten the timeout '(connect limit,read limit)'
                                 ) 
         
         app.logger.info(f'{response.status_code=}')

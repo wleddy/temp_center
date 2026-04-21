@@ -16,13 +16,17 @@
 
 import json
 import requests
-user='bill@williesworkshop.net'
-password='Z/j5pes}GE;M239'
-envoy_serial='202118111081'
+
+with open('instance/enphase_config.json','r') as f:
+    creds = json.loads(f.read())
+user=creds["user"]
+password=creds['password']
+envoy_serial=creds['envoy_serial']
 data = {'user[email]': user, 'user[password]': password}
-response = requests.post('http://enlighten.enphaseenergy.com/login/login.json?', data=data)
-response_data = json.loads(response.text)
-data = {'session_id': response_data['session_id'], 'serial_num': envoy_serial, 'username': user}
-response = requests.post('http://entrez.enphaseenergy.com/tokens', json=data)
-token_raw = response.text
-print(token_raw)
+print(data)
+# response = requests.post('http://enlighten.enphaseenergy.com/login/login.json?', data=data)
+# response_data = json.loads(response.text)
+# data = {'session_id': response_data['session_id'], 'serial_num': envoy_serial, 'username': user}
+# response = requests.post('http://entrez.enphaseenergy.com/tokens', json=data)
+# token_raw = response.text
+# print(token_raw)
